@@ -130,7 +130,9 @@ Once the recommendation categories are chosen, estimate the art needed: the char
 - Rain/wind is a reminder, not a separate outfit category — keeps categories at 4, not multiplied.
 - Reminder types (3): Umbrella (PoP-driven), Sun protection — sunscreen + sunglasses/hat bundled (UV-index-driven), Hydration (apparent-temperature-driven).
 
-**One additional feature (decided): user-adjustable temperature sensitivity.** A simple preference (e.g., "runs cold / average / runs hot") shifts the default band thresholds by an offset, since personal cold/heat tolerance varies and a fixed band doesn't fit everyone equally. Persisted on-device (localStorage) alongside the saved location. Satisfies the brief's "one additional feature justified by research" requirement. Exact control type (toggle vs. slider) and offset amounts are a `spec.md` detail.
+**One additional feature (decided): user-adjustable temperature sensitivity.** A single slider with 3 discrete positions — "runs cold / average / runs hot" — shifts all 4 default band thresholds together by a fixed offset, since personal cold/heat tolerance varies and a fixed band doesn't fit everyone equally. Persisted on-device (localStorage) alongside the saved location. Lives on a separate settings screen, reached via a gear icon on the main screen (per hand-drawn screens). Satisfies the brief's "one additional feature justified by research" requirement. Exact offset amounts are a `spec.md` detail.
+
+**Units toggle (decided): Fahrenheit/Celsius.** Added to the settings screen alongside the sensitivity slider. Justified by inclusivity — Users unfamiliar with Fahrenheit (e.g., having grown up with Celsius) shouldn't be blocked from understanding the recommendation. Display-only conversion; Open-Meteo returns either unit on request, so it doesn't affect recommendation logic or thresholds (thresholds stay defined in °F internally, converted for display only).
 
 **Art estimate (draft):**
 - Character + outfits: 4 categories × 3 variations = 12 outfit images (or 1 base character + 12 sets of swappable clothing layers, depending on build approach).
