@@ -115,6 +115,8 @@ Record material plan changes and why they were made.
 
 **2026-10-12 — Displayed selected-day precipitation probability.** The existing forecast state already used precipitation probability for umbrella reminders; the same value is now visible as `Rain [percent]%` beside wind/UV on laptop and below the character on phone. Per Developer direction, weekday buttons remain unchanged.
 
+**2026-10-12 — Stacked desktop weather stats above the day selector.** The desktop forecast controls now use a vertical layout so wind, UV, and rain sit directly above the weekday buttons. The phone layout remains unchanged.
+
 ## Saving transcripts
 
 At the end of planning, ask the Developer to enter `save transcript`. When directed, save the complete conversation as `transcripts/plan-YYYY-MM-DD_HHMMSS.md`, label chat messages `Developer` and `Agent`, and confirm the saved path.

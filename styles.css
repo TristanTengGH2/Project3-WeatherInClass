@@ -859,10 +859,9 @@ input:disabled {
   #forecast-controls {
     order: 2;
     width: 100%;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
   }
 
   .stat-flank {
