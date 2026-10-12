@@ -56,7 +56,8 @@ Translate every fixed brief requirement and the selected research-driven feature
 ### Responsive layout and accessibility
 
 7. **One-handed phone use.** Location-search box, location icon, and gear (Settings/Info) icon sit at the top of the phone layout, centered, since they're interacted with rarely (once per session, typically) — keeping them out of the way of the main character/forecast content rather than needing to be within thumb-reach. All touch targets, top or not, remain ≥44×44px.
-   - *Check:* on a phone-width viewport, the top controls are each ≥44×44px and reachable with a thumb stretch (not requiring a second hand to steady the device); the day-selector and any frequently-used control are reachable one-handed without top placement being required for those.
+   On phone viewports 760px tall or shorter, including the reduced page area left by visible browser controls, vertical padding, gaps, and character/weather art scale down modestly while text remains readable and controls remain ≥44×44px.
+   - *Check:* on a phone-width viewport, the top controls are each ≥44×44px and reachable with a thumb stretch (not requiring a second hand to steady the device); the day-selector and any frequently-used control are reachable one-handed; at 390×650 CSS pixels, compact mode reduces the main presentation height without horizontal overflow or sub-44px controls; at 390×844, the standard phone proportions remain active.
 8. **Laptop layout.** Uses the larger screen for a side panel (reminders list) alongside the centered character, rather than a stretched/centered copy of the phone layout, per the hand-drawn laptop sketch.
    - *Check:* at laptop width, the reminders list renders as a visible side panel, not stacked below the character as on phone.
 9. **Accessibility baseline** (per `research.md`): no color-only signals (every colored state pairs an icon/text label), real text/ARIA for all recommendation content (not baked into images), alt text on all character/icon images describing the state, and ≥4.5:1 text/icon contrast. The location autocomplete follows combobox/listbox semantics with keyboard navigation, and the invalid-location shake is disabled when reduced motion is requested.
@@ -140,6 +141,8 @@ After implementation or testing, record requirement changes and the evidence tha
 **2026-10-12 — Added calendar day numbers to forecast buttons.** The Developer clarified that "date" meant the day number. Each desktop and phone selector button now shows its weekday (or "Today") above the numeric calendar date and exposes the full date as its accessible label.
 
 **2026-10-12 — Expanded location entry to ZIP or city/state with autocomplete.** Per Developer approval, the single field now accepts US ZIP codes or city/state text. Debounced, keyboard-accessible suggestions load immediately when chosen; the arrow remains available for manual submission. Invalid input now uses the larger message "Oops! Try a ZIP or City, State." with a short reduced-motion-aware shake.
+
+**2026-10-12 — Added compact mode for short phone viewports.** Real-phone review found that visible browser controls reduced the usable page height. Per Developer approval, phone viewports 760px tall or shorter now use tighter padding/gaps and modestly smaller character/weather art while preserving readable text, 44px-minimum controls, and the existing taller-phone and desktop layouts.
 
 ## Approval
 

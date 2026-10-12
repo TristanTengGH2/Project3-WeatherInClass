@@ -122,6 +122,8 @@ Record material plan changes and why they were made.
 
 **2026-10-12 — Expanded location entry and made invalid feedback more visible.** The approved search flow uses one field for US ZIP or city/state entry, debounced Open-Meteo suggestions, immediate loading on suggestion selection, and the existing arrow for manual submission. The invalid-location message is larger and briefly shakes unless reduced motion is requested. Existing saved ZIP records remain compatible.
 
+**2026-10-12 — Added a short-viewport phone layout.** The Developer's real-phone check found that visible browser controls left too little vertical room. At phone widths with 760px or less of usable height, the layout now reduces nonessential padding/gaps and character/weather-art size while retaining readable text and 44px-minimum controls. Taller phones and laptop layout remain unchanged.
+
 ## Saving transcripts
 
 At the end of planning, ask the Developer to enter `save transcript`. When directed, save the complete conversation as `transcripts/plan-YYYY-MM-DD_HHMMSS.md`, label chat messages `Developer` and `Agent`, and confirm the saved path.
