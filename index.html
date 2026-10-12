@@ -19,6 +19,9 @@
     <button id="locate-btn" type="button" aria-label="Use my location">
       <img src="assets/location.png" alt="" width="24" height="24" />
     </button>
+    <button id="settings-btn" type="button" aria-label="Settings and info">
+      <img src="assets/settings.png" alt="" width="24" height="24" />
+    </button>
     <p id="zip-error" class="error-text" hidden>Invalid zip code</p>
     <p id="location-status" class="status-text" hidden></p>
   </header>
@@ -35,6 +38,7 @@
         <img id="character-sprite" alt="" />
       </div>
       <p id="temperature-display"></p>
+      <p id="recommendation-text"></p>
 
       <ul id="reminders-list" aria-label="Reminders"></ul>
 
@@ -51,6 +55,57 @@
   <div id="error-panel" hidden>
     <p id="error-message">Couldn't load the forecast right now.</p>
     <button id="retry-btn" type="button">Retry</button>
+  </div>
+
+  <div id="settings-modal" hidden role="dialog" aria-modal="true" aria-label="Settings and info">
+    <div id="settings-modal-content">
+      <div id="settings-tabs" role="tablist">
+        <button id="tab-settings" class="tab-btn selected" role="tab" aria-selected="true" type="button">Settings</button>
+        <button id="tab-info" class="tab-btn" role="tab" aria-selected="false" type="button">Info</button>
+        <button id="settings-close-btn" type="button" aria-label="Close">✕</button>
+      </div>
+
+      <div id="panel-settings" role="tabpanel">
+        <fieldset id="sensitivity-fieldset">
+          <legend>Where do cold, average, and hot feel like for you? (°F)</legend>
+          <div id="boundary-slider">
+            <input type="range" id="boundary-1" min="0" max="100" step="1" aria-label="Cold / cool boundary" />
+            <input type="range" id="boundary-2" min="0" max="100" step="1" aria-label="Cool / mild boundary" />
+            <input type="range" id="boundary-3" min="0" max="100" step="1" aria-label="Mild / warm boundary" />
+            <div id="boundary-track"></div>
+          </div>
+          <div id="boundary-readout">
+            <span id="boundary-1-readout"></span>
+            <span id="boundary-2-readout"></span>
+            <span id="boundary-3-readout"></span>
+          </div>
+          <div id="sensitivity-labels">
+            <span>Cold (puffer)</span>
+            <span>Average</span>
+            <span>Hot (tank/shorts)</span>
+          </div>
+        </fieldset>
+
+        <label class="toggle-row">
+          <input type="checkbox" id="hydration-offset-toggle" />
+          Apply my sensitivity to the hydration reminder too
+        </label>
+
+        <fieldset>
+          <legend>Units</legend>
+          <label><input type="radio" name="unit" value="F" /> °F</label>
+          <label><input type="radio" name="unit" value="C" /> °C</label>
+        </fieldset>
+      </div>
+
+      <div id="panel-info" role="tabpanel" hidden>
+        <p><strong>Created by:</strong> <a href="https://github.com/TristanTengGH2/Project3-WeatherInClass" target="_blank" rel="noopener">Tristan Teng</a></p>
+        <p><strong>Weather data:</strong> <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a>, licensed under CC BY 4.0.</p>
+        <p><strong>Recommendation methods:</strong> Outfit suggestions are based on general layering guidance for the given "feels-like" temperature. Sun-protection advice follows the <a href="https://www.epa.gov/sunsafety/uv-index-scale-0" target="_blank" rel="noopener">EPA's UV Index Scale</a> (sunscreen recommended at UV 3+). Hydration advice follows the <a href="https://www.weather.gov/safety/heat-index" target="_blank" rel="noopener">National Weather Service's heat index guidance</a>. Umbrella advice is based on the forecast's precipitation probability.</p>
+        <p><strong>Privacy:</strong> This app has no account and no server. Your most recent location is saved only in your browser's local storage, on this device. Location is only requested when you tap the location button; you can always type a zip code instead.</p>
+        <p><strong>Art credits:</strong> All character and icon art is AI-generated (pixel-art style).</p>
+      </div>
+    </div>
   </div>
 
   <script type="module" src="js/app.js"></script>

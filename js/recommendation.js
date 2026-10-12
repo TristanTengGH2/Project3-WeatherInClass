@@ -28,6 +28,13 @@ const CATEGORY_LABELS = {
   warm: "Warm",
 };
 
+const RECOMMENDATION_TEXTS = {
+  cold: "It's cold out — bundle up with a heavy coat.",
+  cool: "Cool air today — a jacket over a layer should do it.",
+  mild: "Mild conditions — a light layer is enough.",
+  warm: "Warm today — dress light and stay comfortable.",
+};
+
 export const REMINDER_TEXTS = {
   umbrella: [
     "Rain's likely today — bring an umbrella.",
@@ -52,27 +59,22 @@ export const REMINDER_ICONS = {
   hydration: "assets/water.png",
 };
 
-// Sensitivity preference -> °F offset applied to the outfit-band thresholds.
-// "runs cold" needs a lower temp before they're satisfied with lighter clothing (negative offset
-// shifts them toward heavier categories sooner); "runs hot" is the opposite.
-export const SENSITIVITY_OFFSETS = {
-  cold: 10,
-  average: 0,
-  hot: -10,
-};
+// Default boundaries (°F) between outfit categories, from research.md's conventional bands.
+// The User can override these with the 3-handle sensitivity slider (0-100°F).
+export const DEFAULT_BOUNDARIES = { b1: 35, b2: 45, b3: 60 };
 
-export function classifyOutfitCategory(apparentTempF, sensitivity = "average") {
-  const offset = SENSITIVITY_OFFSETS[sensitivity] ?? 0;
-  const t = apparentTempF + offset;
-  if (t < 35) return "cold";
-  if (t < 45) return "cool";
-  if (t < 60) return "mild";
+export function classifyOutfitCategory(apparentTempF, boundaries = DEFAULT_BOUNDARIES) {
+  const { b1, b2, b3 } = boundaries;
+  if (apparentTempF < b1) return "cold";
+  if (apparentTempF < b2) return "cool";
+  if (apparentTempF < b3) return "mild";
   return "warm";
 }
 
 export function computeReminderFlags(day, prefs) {
-  const hydrationOffset =
-    prefs.applySensitivityToHydration ? SENSITIVITY_OFFSETS[prefs.sensitivity] ?? 0 : 0;
+  const hydrationOffset = prefs.applySensitivityToHydration
+    ? prefs.boundaries.b3 - DEFAULT_BOUNDARIES.b3
+    : 0;
   return {
     umbrella: day.precipProbMax >= 40,
     sun: day.uvIndexMax >= 3,
@@ -86,7 +88,7 @@ function randomIndex() {
 
 /** Build a fresh recommendation state for one (location, date) day's forecast. */
 export function buildRecommendationState(day, prefs) {
-  const category = classifyOutfitCategory(day.apparentTempF, prefs.sensitivity);
+  const category = classifyOutfitCategory(day.apparentTempF, prefs.boundaries);
   const outfitIndex = randomIndex();
   const flags = computeReminderFlags(day, prefs);
   const reminders = Object.entries(flags)
@@ -97,6 +99,7 @@ export function buildRecommendationState(day, prefs) {
     date: day.date,
     category,
     categoryLabel: CATEGORY_LABELS[category],
+    recommendationText: RECOMMENDATION_TEXTS[category],
     outfitIndex,
     outfitImage: OUTFITS[category][outfitIndex],
     icon: day.icon,

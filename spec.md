@@ -66,13 +66,13 @@ Translate every fixed brief requirement and the selected research-driven feature
 
 **Inputs** (from Open-Meteo, for the selected location + date): `apparent_temperature`, UV index, precipitation probability (PoP).
 
-**User preference inputs** (from Settings, device-stored): temperature-sensitivity offset (cold/average/hot → fixed °F offset applied to all 4 band thresholds), a toggle for whether that offset also applies to the hydration reminder threshold (default **off**), display unit (°F/°C, display-only).
+**User preference inputs** (from Settings, device-stored): three user-set temperature boundaries (cold/cool, cool/mild, mild/warm), each adjustable 0–100°F via a 3-handle slider — defaults 35°F, 45°F, 60°F, matching the conventional bands from `research.md`; a toggle for whether the user's mild/warm boundary also shifts the hydration reminder threshold (default **off**); display unit (°F/°C, display-only).
 
-**Recommendation rules** (per `research.md`, thresholds in °F before sensitivity offset):
-- Outfit category (one of 4), from `apparent_temperature` + sensitivity offset: Cold (<35°F), Cool (35–45°F), Mild (45–55°F), Hot/warm (60°F+).
-- Umbrella reminder: active when PoP ≥40% (not temperature-based; sensitivity offset never applies).
-- Sun protection reminder: active when UV index ≥3 (not temperature-based; sensitivity offset never applies).
-- Hydration reminder: active when `apparent_temperature` ≥80°F, adjusted by the sensitivity offset only if the Settings toggle for it is on. Off by default, since heat risk is safety-driven rather than comfort-driven.
+**Recommendation rules:**
+- Outfit category (one of 4), from `apparent_temperature` against the user's 3 boundaries (`b1` ≤ `b2` ≤ `b3`, enforced by the slider): Cold (< `b1`), Cool (`b1`–`b2`), Mild (`b2`–`b3`), Warm (≥ `b3`).
+- Umbrella reminder: active when PoP ≥40% (not temperature-based; boundaries never apply).
+- Sun protection reminder: active when UV index ≥3 (not temperature-based; boundaries never apply).
+- Hydration reminder: active when `apparent_temperature` ≥80°F, shifted by (`b3` − 60°F) only if the Settings toggle for it is on. Off by default, since heat risk is safety-driven rather than comfort-driven.
 
 **Shared state:** one recommendation-state object per (location, date) combination holds: the outfit category, which reminders are active, and the randomly-chosen outfit/wording variation indices (see Content variation). The character art, weather icon, written recommendation text, and all active reminder text are all read from this single object — none are computed independently elsewhere.
 
@@ -109,13 +109,14 @@ Reminder and weather icons use one shared icon-art style (informed by the pixel-
 - **Separate rain/wind outfit category.** Rain and wind surface only as the umbrella reminder, not as distinct outfit art layered on top of the temperature-based outfit.
 - **Reduced-motion and keyboard-navigation handling.** No animated transitions are planned, and the interaction model is button-based, so neither gets dedicated implementation effort beyond what semantic HTML provides for free (per `research.md`).
 - **Account system / cross-device sync.** No login, no server-side storage; the saved location lives only in that device's browser (localStorage).
-- **Per-threshold sensitivity controls.** One combined slider shifts all 4 outfit bands together; no separate sliders per band boundary.
-- **Sensitivity offset applied to umbrella/sun-protection reminders.** Those stay fixed (PoP/UV-based, not temperature-based); only the hydration reminder has an opt-in toggle for the sensitivity offset.
+- **Boundary adjustment applied to umbrella/sun-protection reminders.** Those stay fixed (PoP/UV-based, not temperature-based); only the hydration reminder has an opt-in toggle tied to the user's mild/warm boundary.
 - **Offline support / caching weather data for later use.** Each view requires a live fetch; no service worker or offline fallback.
 
 ## Revisions
 
 After implementation or testing, record requirement changes and the evidence that prompted them. Update the screen drawings when a material layout or interaction changes.
+
+**2026-10-11 — Sensitivity control changed from single offset slider to 3-handle boundary slider.** During the build, the Developer asked for the sensitivity control to let the User directly set where "cold" (puffer-coat weather), "average," and "hot" (tank-top weather) fall on a 0–100°F range, rather than a single combined offset applied uniformly. This reverses the original "no per-threshold controls" decision (see prior Out of scope wording). Updated: Recommendation state and data flow (3 user-set boundaries replace the single offset; hydration-toggle math now keyed off the mild/warm boundary vs. its 60°F default); Out of scope (removed the "no per-threshold controls" exclusion). `research.md`'s additional-feature entry updated to match.
 
 ## Approval
 

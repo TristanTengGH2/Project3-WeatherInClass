@@ -6,8 +6,9 @@ import {
   LocationError,
   WeatherServiceError,
 } from "./weather.js";
-import { REMINDER_TEXTS, REMINDER_ICONS } from "./recommendation.js";
+import { REMINDER_TEXTS, REMINDER_ICONS, DEFAULT_BOUNDARIES } from "./recommendation.js";
 import { getRecommendationState } from "./state.js";
+import { saveLocation, loadLocation, savePrefs, loadPrefs } from "./storage.js";
 
 const zipInput = document.getElementById("zip-input");
 const locateBtn = document.getElementById("locate-btn");
@@ -20,14 +21,34 @@ const currentForecastLabel = document.getElementById("current-forecast-label");
 const weatherIconEl = document.getElementById("weather-icon");
 const characterSpriteEl = document.getElementById("character-sprite");
 const temperatureDisplay = document.getElementById("temperature-display");
+const recommendationTextEl = document.getElementById("recommendation-text");
 const remindersList = document.getElementById("reminders-list");
 const daySelector = document.getElementById("day-selector");
 const loadingOverlay = document.getElementById("loading-overlay");
 const errorPanel = document.getElementById("error-panel");
 const retryBtn = document.getElementById("retry-btn");
+const settingsBtn = document.getElementById("settings-btn");
+const settingsModal = document.getElementById("settings-modal");
+const settingsCloseBtn = document.getElementById("settings-close-btn");
+const tabSettingsBtn = document.getElementById("tab-settings");
+const tabInfoBtn = document.getElementById("tab-info");
+const panelSettings = document.getElementById("panel-settings");
+const panelInfo = document.getElementById("panel-info");
+const hydrationOffsetToggle = document.getElementById("hydration-offset-toggle");
+const boundary1 = document.getElementById("boundary-1");
+const boundary2 = document.getElementById("boundary-2");
+const boundary3 = document.getElementById("boundary-3");
+const boundary1Readout = document.getElementById("boundary-1-readout");
+const boundary2Readout = document.getElementById("boundary-2-readout");
+const boundary3Readout = document.getElementById("boundary-3-readout");
 
-// Default preferences until the Settings screen is built (plan.md: separate checkpoint).
-const prefs = { sensitivity: "average", applySensitivityToHydration: false, unit: "F" };
+const prefs = {
+  boundaries: { ...DEFAULT_BOUNDARIES },
+  applySensitivityToHydration: false,
+  unit: "F",
+};
+const savedPrefs = loadPrefs();
+if (savedPrefs) Object.assign(prefs, savedPrefs, { boundaries: { ...prefs.boundaries, ...savedPrefs.boundaries } });
 
 let currentLocationKey = null;
 let currentLocationLabel = "";
@@ -115,6 +136,7 @@ function renderSelectedDay() {
   characterSpriteEl.alt = `Character wearing a ${state.categoryLabel.toLowerCase()}-weather outfit`;
 
   temperatureDisplay.textContent = formatTemp(state.apparentTempF);
+  recommendationTextEl.textContent = state.recommendationText;
 
   remindersList.innerHTML = "";
   state.reminders.forEach((r) => {
@@ -134,7 +156,7 @@ function renderSelectedDay() {
   renderDaySelector();
 }
 
-async function loadForecastFor(lat, lon, label, locationKey) {
+async function loadForecastFor(lat, lon, label, locationKey, persistAs) {
   setLoading(true);
   hideError();
   try {
@@ -148,6 +170,8 @@ async function loadForecastFor(lat, lon, label, locationKey) {
     forecastView.hidden = false;
     locationNameEl.textContent = currentLocationLabel;
     renderSelectedDay();
+
+    if (persistAs) saveLocation(persistAs);
   } catch (err) {
     if (err instanceof WeatherServiceError) {
       showError();
@@ -182,7 +206,13 @@ async function handleZipSubmit() {
     throw err;
   }
   setLoading(false);
-  await loadForecastFor(location.lat, location.lon, location.name, `zip:${location.zip}`);
+  await loadForecastFor(location.lat, location.lon, location.name, `zip:${location.zip}`, {
+    type: "zip",
+    zip: location.zip,
+    lat: location.lat,
+    lon: location.lon,
+    name: location.name,
+  });
 }
 
 async function handleLocate() {
@@ -201,7 +231,12 @@ async function handleLocate() {
     return;
   }
   setLoading(false);
-  await loadForecastFor(pos.lat, pos.lon, "Current location", `geo:${pos.lat.toFixed(2)},${pos.lon.toFixed(2)}`);
+  const locationKey = `geo:${pos.lat.toFixed(2)},${pos.lon.toFixed(2)}`;
+  await loadForecastFor(pos.lat, pos.lon, "Current location", locationKey, {
+    type: "geo",
+    lat: pos.lat,
+    lon: pos.lon,
+  });
 }
 
 zipInput.addEventListener("keydown", (e) => {
@@ -213,3 +248,115 @@ locateBtn.addEventListener("click", handleLocate);
 retryBtn.addEventListener("click", () => {
   if (lastAction) lastAction();
 });
+
+// --- Settings modal ---
+
+function openSettingsModal() {
+  settingsModal.hidden = false;
+}
+
+function closeSettingsModal() {
+  settingsModal.hidden = true;
+}
+
+function switchTab(tab) {
+  const isSettings = tab === "settings";
+  tabSettingsBtn.classList.toggle("selected", isSettings);
+  tabSettingsBtn.setAttribute("aria-selected", String(isSettings));
+  tabInfoBtn.classList.toggle("selected", !isSettings);
+  tabInfoBtn.setAttribute("aria-selected", String(!isSettings));
+  panelSettings.hidden = !isSettings;
+  panelInfo.hidden = isSettings;
+}
+
+function updateBoundaryReadouts() {
+  boundary1Readout.textContent = `${prefs.boundaries.b1}°F`;
+  boundary2Readout.textContent = `${prefs.boundaries.b2}°F`;
+  boundary3Readout.textContent = `${prefs.boundaries.b3}°F`;
+}
+
+function applyPrefsToControls() {
+  boundary1.value = String(prefs.boundaries.b1);
+  boundary2.value = String(prefs.boundaries.b2);
+  boundary3.value = String(prefs.boundaries.b3);
+  updateBoundaryReadouts();
+  hydrationOffsetToggle.checked = prefs.applySensitivityToHydration;
+  document.querySelector(`input[name="unit"][value="${prefs.unit}"]`).checked = true;
+}
+
+settingsBtn.addEventListener("click", () => {
+  applyPrefsToControls();
+  switchTab("settings");
+  openSettingsModal();
+});
+
+settingsCloseBtn.addEventListener("click", closeSettingsModal);
+tabSettingsBtn.addEventListener("click", () => switchTab("settings"));
+tabInfoBtn.addEventListener("click", () => switchTab("info"));
+
+// Keep the 3 handles ordered (b1 <= b2 <= b3) by clamping whichever handle moved.
+function handleBoundaryInput(key, input) {
+  input.addEventListener("input", () => {
+    let value = Number(input.value);
+    if (key === "b1") value = Math.min(value, prefs.boundaries.b2);
+    if (key === "b2") value = Math.max(prefs.boundaries.b1, Math.min(value, prefs.boundaries.b3));
+    if (key === "b3") value = Math.max(value, prefs.boundaries.b2);
+    input.value = String(value);
+    prefs.boundaries[key] = value;
+    updateBoundaryReadouts();
+    savePrefs(prefs);
+    // Per spec.md: does not re-roll already-cached days, only affects newly-computed ones.
+  });
+}
+handleBoundaryInput("b1", boundary1);
+handleBoundaryInput("b2", boundary2);
+handleBoundaryInput("b3", boundary3);
+
+// The 3 sliders overlap (same track, full width); when two handles share a value, whichever
+// is last in the DOM always sits on top and blocks the others from being grabbed. On
+// touch/click, bring whichever handle's current value is closest to the touch point to the
+// front so it's the one that actually responds to the drag.
+const boundarySliderEl = document.getElementById("boundary-slider");
+function bringNearestHandleToFront(clientX) {
+  const rect = boundarySliderEl.getBoundingClientRect();
+  const pct = Math.min(1, Math.max(0, (clientX - rect.left) / rect.width));
+  const touchedValue = pct * 100;
+  const handles = [boundary1, boundary2, boundary3];
+  handles
+    .slice()
+    .sort((a, b) => Math.abs(touchedValue - Number(a.value)) - Math.abs(touchedValue - Number(b.value)))
+    .forEach((el, i) => {
+      el.style.zIndex = String(handles.length - i);
+    });
+}
+boundarySliderEl.addEventListener("pointerdown", (e) => bringNearestHandleToFront(e.clientX));
+
+hydrationOffsetToggle.addEventListener("change", (e) => {
+  prefs.applySensitivityToHydration = e.target.checked;
+  savePrefs(prefs);
+});
+
+document.querySelectorAll('input[name="unit"]').forEach((radio) => {
+  radio.addEventListener("change", (e) => {
+    prefs.unit = e.target.value;
+    savePrefs(prefs);
+    if (currentDays.length > 0) renderSelectedDay(); // unit is display-only, safe to re-render immediately
+  });
+});
+
+// --- Restore saved location on load ---
+
+const savedLocation = loadLocation();
+if (savedLocation) {
+  if (savedLocation.type === "zip") {
+    zipInput.value = savedLocation.zip;
+  }
+  loadForecastFor(
+    savedLocation.lat,
+    savedLocation.lon,
+    savedLocation.type === "zip" ? savedLocation.name : "Current location",
+    savedLocation.type === "zip"
+      ? `zip:${savedLocation.zip}`
+      : `geo:${savedLocation.lat.toFixed(2)},${savedLocation.lon.toFixed(2)}`
+  );
+}

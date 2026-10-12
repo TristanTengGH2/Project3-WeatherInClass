@@ -130,7 +130,7 @@ Once the recommendation categories are chosen, estimate the art needed: the char
 - Rain/wind is a reminder, not a separate outfit category — keeps categories at 4, not multiplied.
 - Reminder types (3): Umbrella (PoP-driven), Sun protection — sunscreen + sunglasses/hat bundled (UV-index-driven), Hydration (apparent-temperature-driven).
 
-**One additional feature (decided): user-adjustable temperature sensitivity.** A single slider with 3 discrete positions — "runs cold / average / runs hot" — shifts all 4 default band thresholds together by a fixed offset, since personal cold/heat tolerance varies and a fixed band doesn't fit everyone equally. Persisted on-device (localStorage) alongside the saved location. Lives on a separate settings screen, reached via a gear icon on the main screen (per hand-drawn screens). Satisfies the brief's "one additional feature justified by research" requirement. Exact offset amounts are a `spec.md` detail.
+**One additional feature (decided): user-adjustable temperature sensitivity.** A 3-handle slider (0–100°F) lets the User directly set where "cold" (puffer-coat weather), "average," and "hot" (tank-top weather) fall for them personally, replacing the default band boundaries (35°F/45°F/60°F) with their own, since personal cold/heat tolerance varies and a fixed band doesn't fit everyone equally. Persisted on-device (localStorage) alongside the saved location. Lives on a separate settings screen, reached via a gear icon on the main screen (per hand-drawn screens). Satisfies the brief's "one additional feature justified by research" requirement. *(Revised 2026-10-11 from an earlier single-offset-slider design — see `spec.md` Revisions for why.)*
 
 **Units toggle (decided): Fahrenheit/Celsius.** Added to the settings screen alongside the sensitivity slider. Justified by inclusivity — Users unfamiliar with Fahrenheit (e.g., having grown up with Celsius) shouldn't be blocked from understanding the recommendation. Display-only conversion; Open-Meteo returns either unit on request, so it doesn't affect recommendation logic or thresholds (thresholds stay defined in °F internally, converted for display only).
 
@@ -147,6 +147,8 @@ Once the recommendation categories are chosen, estimate the art needed: the char
 ## Revisions
 
 Record new evidence or changed decisions and explain why they changed.
+
+**2026-10-11 — Sensitivity feature changed from single-offset slider to 3-handle boundary slider.** While building the Settings screen, the Developer wanted direct control over where cold/average/hot personally fall (0–100°F) rather than one combined offset. See `spec.md` Revisions for the full rule change.
 
 ## Approval
 
