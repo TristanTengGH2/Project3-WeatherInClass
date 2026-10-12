@@ -30,9 +30,6 @@
     <p id="placeholder-status">Enter a zip code or use your location to get started.</p>
 
     <div id="forecast-view" hidden>
-      <p id="location-name"></p>
-      <p id="current-forecast-label"></p>
-
       <div id="layout-grid">
         <div id="sidebar-panel">
           <ul id="reminders-list" aria-label="Reminders"></ul>
@@ -41,6 +38,9 @@
         </div>
 
         <div id="main-stage">
+          <p id="location-name"></p>
+          <p id="current-forecast-label"></p>
+
           <div id="character-stage">
             <span id="stat-uv-mobile" class="stat-flank"></span>
             <div id="character-visual">
@@ -51,10 +51,9 @@
           </div>
           <p id="temperature-display"></p>
           <p id="recommendation-text"></p>
+          <p id="data-source-credit">Data: Open-Meteo</p>
         </div>
       </div>
-
-      <p id="data-source-credit">Data: Open-Meteo</p>
     </div>
   </main>
 
