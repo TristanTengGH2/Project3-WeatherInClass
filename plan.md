@@ -117,6 +117,8 @@ Record material plan changes and why they were made.
 
 **2026-10-12 — Stacked desktop weather stats above the day selector.** The desktop forecast controls now use a vertical layout so wind, UV, and rain sit directly above the weekday buttons. The phone layout remains unchanged.
 
+**2026-10-12 — Added calendar day numbers to forecast buttons.** Each forecast button now renders the day number under its weekday on both laptop and phone, using the date returned with that forecast. Full-date accessible labels preserve clarity for screen readers.
+
 ## Saving transcripts
 
 At the end of planning, ask the Developer to enter `save transcript`. When directed, save the complete conversation as `transcripts/plan-YYYY-MM-DD_HHMMSS.md`, label chat messages `Developer` and `Agent`, and confirm the saved path.

@@ -121,6 +121,21 @@ function dayLabel(dateStr, index) {
   return weekday;
 }
 
+function dayNumber(dateStr) {
+  return String(Number(dateStr.split("-")[2]));
+}
+
+function fullDateLabel(dateStr, index) {
+  const [y, m, d] = dateStr.split("-").map(Number);
+  const date = new Date(Date.UTC(y, m - 1, d)).toLocaleDateString("en-US", {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+    timeZone: "UTC",
+  });
+  return index === 0 ? `Today, ${date}` : date;
+}
+
 function formatTemp(tempF) {
   if (prefs.unit === "C") {
     const c = ((tempF - 32) * 5) / 9;
@@ -134,7 +149,17 @@ function renderDaySelector() {
   currentDays.forEach((day, i) => {
     const btn = document.createElement("button");
     btn.type = "button";
-    btn.textContent = dayLabel(day.date, i);
+    btn.setAttribute("aria-label", fullDateLabel(day.date, i));
+
+    const weekday = document.createElement("span");
+    weekday.className = "day-selector-weekday";
+    weekday.textContent = dayLabel(day.date, i);
+
+    const dateNumber = document.createElement("span");
+    dateNumber.className = "day-selector-date";
+    dateNumber.textContent = dayNumber(day.date);
+
+    btn.append(weekday, dateNumber);
     btn.setAttribute("aria-pressed", String(i === selectedIndex));
     if (i === selectedIndex) btn.classList.add("selected");
     btn.addEventListener("click", () => {
