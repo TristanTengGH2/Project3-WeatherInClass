@@ -130,6 +130,8 @@ After implementation or testing, record requirement changes and the evidence tha
 
 **2026-10-12 — Enlarged laptop reminder presentation.** The Developer observed unused space in the desktop left panel and directed that reminder icons and text use more of it. Laptop reminder cards now use 40px icons and larger text/padding; the compact phone presentation is unchanged.
 
+**2026-10-12 — Added a readable cozy-game visual theme.** Per Developer direction, the interface now uses a moderate pixel-farm-inspired treatment without copying proprietary game assets: warm cream surfaces, earthy green/brown accents, chunky borders and shadows, and subtle grid texture. Fredoka is limited to key display text and actions, while Nunito is used for body and interface copy. Both open fonts are self-hosted so the privacy behavior remains unchanged.
+
 ## Approval
 
 The Developer reviews and explicitly approves this specification and its screen designs before planning begins.
