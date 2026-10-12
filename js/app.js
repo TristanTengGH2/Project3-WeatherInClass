@@ -11,7 +11,10 @@ import { getRecommendationState } from "./state.js";
 import { saveLocation, loadLocation, savePrefs, loadPrefs } from "./storage.js";
 
 const zipInput = document.getElementById("zip-input");
+const zipSubmitBtn = document.getElementById("zip-submit-btn");
 const locateBtn = document.getElementById("locate-btn");
+const pageHeader = document.getElementById("location-bar");
+const appEl = document.getElementById("app");
 const zipError = document.getElementById("zip-error");
 const locationStatus = document.getElementById("location-status");
 const placeholderStatus = document.getElementById("placeholder-status");
@@ -33,6 +36,7 @@ const retryBtn = document.getElementById("retry-btn");
 const settingsBtn = document.getElementById("settings-btn");
 const settingsModal = document.getElementById("settings-modal");
 const settingsCloseBtn = document.getElementById("settings-close-btn");
+const settingsSaveBtn = document.getElementById("settings-save-btn");
 const tabSettingsBtn = document.getElementById("tab-settings");
 const tabInfoBtn = document.getElementById("tab-info");
 const panelSettings = document.getElementById("panel-settings");
@@ -52,6 +56,7 @@ const prefs = {
 };
 const savedPrefs = loadPrefs();
 if (savedPrefs) Object.assign(prefs, savedPrefs, { boundaries: { ...prefs.boundaries, ...savedPrefs.boundaries } });
+let draftPrefs = null;
 
 let currentLocationKey = null;
 let currentLocationLabel = "";
@@ -61,24 +66,35 @@ let lastAction = null; // re-run on Retry
 
 function setLoading(isLoading) {
   loadingOverlay.hidden = !isLoading;
-  zipInput.disabled = isLoading;
-  locateBtn.disabled = isLoading;
+  document.querySelectorAll("button, input").forEach((control) => {
+    control.disabled = isLoading;
+  });
+  appEl.setAttribute("aria-busy", String(isLoading));
 }
 
 function showError() {
+  forecastView.hidden = true;
+  placeholderStatus.hidden = true;
+  pageHeader.inert = true;
+  appEl.inert = true;
   errorPanel.hidden = false;
+  queueMicrotask(() => retryBtn.focus());
 }
 
 function hideError() {
   errorPanel.hidden = true;
+  pageHeader.inert = false;
+  appEl.inert = false;
 }
 
 function clearZipError() {
   zipError.hidden = true;
+  zipInput.setAttribute("aria-invalid", "false");
 }
 
 function showZipError() {
   zipError.hidden = false;
+  zipInput.setAttribute("aria-invalid", "true");
 }
 
 function clearLocationStatus() {
@@ -133,12 +149,12 @@ function renderSelectedDay() {
     selectedIndex === 0 ? "Today" : `Forecast for ${dayLabel(day.date, selectedIndex)}`;
 
   weatherIconEl.src = `assets/${state.icon}.png`;
-  weatherIconEl.alt = state.icon.replace("-", " ");
+  weatherIconEl.alt = `Weather: ${state.icon.replaceAll("-", " ")}`;
 
   characterSpriteEl.src = state.outfitImage;
   characterSpriteEl.alt = `Character wearing a ${state.categoryLabel.toLowerCase()}-weather outfit`;
 
-  temperatureDisplay.textContent = formatTemp(state.apparentTempF);
+  temperatureDisplay.textContent = `High ${formatTemp(state.actualHighF)} · Low ${formatTemp(state.actualLowF)}`;
   recommendationTextEl.textContent = state.recommendationText;
 
   const uvText = `UV ${Math.round(state.uvIndexMax)}`;
@@ -252,6 +268,10 @@ zipInput.addEventListener("keydown", (e) => {
   if (e.key === "Enter") handleZipSubmit();
 });
 
+// Explicit button, since inputmode="numeric" often shows an iOS keyboard with no
+// Return/Go key, making the Enter-key shortcut above unreachable on many phones.
+zipSubmitBtn.addEventListener("click", handleZipSubmit);
+
 locateBtn.addEventListener("click", handleLocate);
 
 retryBtn.addEventListener("click", () => {
@@ -261,36 +281,53 @@ retryBtn.addEventListener("click", () => {
 // --- Settings modal ---
 
 function openSettingsModal() {
+  pageHeader.inert = true;
+  appEl.inert = true;
   settingsModal.hidden = false;
+  tabSettingsBtn.focus();
 }
 
 function closeSettingsModal() {
   settingsModal.hidden = true;
+  draftPrefs = null;
+  pageHeader.inert = false;
+  appEl.inert = false;
+  settingsBtn.focus();
 }
 
 function switchTab(tab) {
   const isSettings = tab === "settings";
   tabSettingsBtn.classList.toggle("selected", isSettings);
   tabSettingsBtn.setAttribute("aria-selected", String(isSettings));
+  tabSettingsBtn.tabIndex = isSettings ? 0 : -1;
   tabInfoBtn.classList.toggle("selected", !isSettings);
   tabInfoBtn.setAttribute("aria-selected", String(!isSettings));
+  tabInfoBtn.tabIndex = isSettings ? -1 : 0;
   panelSettings.hidden = !isSettings;
   panelInfo.hidden = isSettings;
 }
 
 function updateBoundaryReadouts() {
-  boundary1Readout.textContent = `${prefs.boundaries.b1}°F`;
-  boundary2Readout.textContent = `${prefs.boundaries.b2}°F`;
-  boundary3Readout.textContent = `${prefs.boundaries.b3}°F`;
+  const boundaries = draftPrefs.boundaries;
+  boundary1Readout.textContent = `${boundaries.b1}°F`;
+  boundary2Readout.textContent = `${boundaries.b2}°F`;
+  boundary3Readout.textContent = `${boundaries.b3}°F`;
+  boundary1.setAttribute("aria-valuetext", `${boundaries.b1} degrees Fahrenheit`);
+  boundary2.setAttribute("aria-valuetext", `${boundaries.b2} degrees Fahrenheit`);
+  boundary3.setAttribute("aria-valuetext", `${boundaries.b3} degrees Fahrenheit`);
 }
 
 function applyPrefsToControls() {
-  boundary1.value = String(prefs.boundaries.b1);
-  boundary2.value = String(prefs.boundaries.b2);
-  boundary3.value = String(prefs.boundaries.b3);
+  draftPrefs = {
+    ...prefs,
+    boundaries: { ...prefs.boundaries },
+  };
+  boundary1.value = String(draftPrefs.boundaries.b1);
+  boundary2.value = String(draftPrefs.boundaries.b2);
+  boundary3.value = String(draftPrefs.boundaries.b3);
   updateBoundaryReadouts();
-  hydrationOffsetToggle.checked = prefs.applySensitivityToHydration;
-  document.querySelector(`input[name="unit"][value="${prefs.unit}"]`).checked = true;
+  hydrationOffsetToggle.checked = draftPrefs.applySensitivityToHydration;
+  document.querySelector(`input[name="unit"][value="${draftPrefs.unit}"]`).checked = true;
 }
 
 settingsBtn.addEventListener("click", () => {
@@ -303,18 +340,36 @@ settingsCloseBtn.addEventListener("click", closeSettingsModal);
 tabSettingsBtn.addEventListener("click", () => switchTab("settings"));
 tabInfoBtn.addEventListener("click", () => switchTab("info"));
 
+settingsSaveBtn.addEventListener("click", () => {
+  Object.assign(prefs, draftPrefs, { boundaries: { ...draftPrefs.boundaries } });
+  savePrefs(prefs);
+  if (currentDays.length > 0) renderSelectedDay();
+  closeSettingsModal();
+});
+
+settingsModal.addEventListener("keydown", (event) => {
+  if (event.key === "Escape") closeSettingsModal();
+});
+
+document.getElementById("settings-tabs").addEventListener("keydown", (event) => {
+  if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+  if (document.activeElement !== tabSettingsBtn && document.activeElement !== tabInfoBtn) return;
+  event.preventDefault();
+  const nextTab = document.activeElement === tabSettingsBtn ? "info" : "settings";
+  switchTab(nextTab);
+  (nextTab === "settings" ? tabSettingsBtn : tabInfoBtn).focus();
+});
+
 // Keep the 3 handles ordered (b1 <= b2 <= b3) by clamping whichever handle moved.
 function handleBoundaryInput(key, input) {
   input.addEventListener("input", () => {
     let value = Number(input.value);
-    if (key === "b1") value = Math.min(value, prefs.boundaries.b2);
-    if (key === "b2") value = Math.max(prefs.boundaries.b1, Math.min(value, prefs.boundaries.b3));
-    if (key === "b3") value = Math.max(value, prefs.boundaries.b2);
+    if (key === "b1") value = Math.min(value, draftPrefs.boundaries.b2);
+    if (key === "b2") value = Math.max(draftPrefs.boundaries.b1, Math.min(value, draftPrefs.boundaries.b3));
+    if (key === "b3") value = Math.max(value, draftPrefs.boundaries.b2);
     input.value = String(value);
-    prefs.boundaries[key] = value;
+    draftPrefs.boundaries[key] = value;
     updateBoundaryReadouts();
-    savePrefs(prefs);
-    // Per spec.md: does not re-roll already-cached days, only affects newly-computed ones.
   });
 }
 handleBoundaryInput("b1", boundary1);
@@ -341,15 +396,12 @@ function bringNearestHandleToFront(clientX) {
 boundarySliderEl.addEventListener("pointerdown", (e) => bringNearestHandleToFront(e.clientX));
 
 hydrationOffsetToggle.addEventListener("change", (e) => {
-  prefs.applySensitivityToHydration = e.target.checked;
-  savePrefs(prefs);
+  draftPrefs.applySensitivityToHydration = e.target.checked;
 });
 
 document.querySelectorAll('input[name="unit"]').forEach((radio) => {
   radio.addEventListener("change", (e) => {
-    prefs.unit = e.target.value;
-    savePrefs(prefs);
-    if (currentDays.length > 0) renderSelectedDay(); // unit is display-only, safe to re-render immediately
+    draftPrefs.unit = e.target.value;
   });
 });
 

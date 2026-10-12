@@ -56,14 +56,14 @@ export function getDeviceLocation() {
 /**
  * Fetch a 7-day forecast (today + 6 days) for a location.
  * Returns an array of 7 entries:
- * { date, apparentTempF, uvIndexMax, precipProbMax, weatherCode, windSpeedMph }
+ * { date, apparentTempF, actualHighF, actualLowF, uvIndexMax, precipProbMax, weatherCode, windSpeedMph }
  */
 export async function fetchForecast(lat, lon) {
   let response;
   try {
     const url =
       `${FORECAST_URL}?latitude=${lat}&longitude=${lon}` +
-      `&daily=apparent_temperature_max,uv_index_max,precipitation_probability_max,weathercode,windspeed_10m_max` +
+      `&daily=apparent_temperature_max,temperature_2m_max,temperature_2m_min,uv_index_max,precipitation_probability_max,weathercode,windspeed_10m_max` +
       `&temperature_unit=fahrenheit&windspeed_unit=mph&timezone=auto&forecast_days=7`;
     response = await fetch(url);
   } catch {
@@ -83,12 +83,16 @@ export async function fetchForecast(lat, lon) {
   const days = [];
   for (let i = 0; i < 7; i++) {
     const apparentTempF = d.apparent_temperature_max[i];
+    const actualHighF = d.temperature_2m_max[i];
+    const actualLowF = d.temperature_2m_min[i];
     const uvIndexMax = d.uv_index_max[i];
     const precipProbMax = d.precipitation_probability_max[i];
     const weatherCode = d.weathercode[i];
     const windSpeedMph = d.windspeed_10m_max[i];
     if (
       apparentTempF == null ||
+      actualHighF == null ||
+      actualLowF == null ||
       uvIndexMax == null ||
       precipProbMax == null ||
       weatherCode == null ||
@@ -96,7 +100,16 @@ export async function fetchForecast(lat, lon) {
     ) {
       throw new WeatherServiceError("Forecast data incomplete");
     }
-    days.push({ date: d.time[i], apparentTempF, uvIndexMax, precipProbMax, weatherCode, windSpeedMph });
+    days.push({
+      date: d.time[i],
+      apparentTempF,
+      actualHighF,
+      actualLowF,
+      uvIndexMax,
+      precipProbMax,
+      weatherCode,
+      windSpeedMph,
+    });
   }
   return days;
 }

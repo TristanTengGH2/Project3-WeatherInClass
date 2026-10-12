@@ -11,10 +11,13 @@ function keyFor(locationKey, date) {
 /** Get (or create and cache) the recommendation state for a (location, date) day. */
 export function getRecommendationState(locationKey, day, prefs) {
   const key = keyFor(locationKey, day.date);
-  if (!cache.has(key)) {
-    cache.set(key, buildRecommendationState(day, prefs));
-  }
-  return cache.get(key);
+  const previous = cache.get(key);
+  const state = buildRecommendationState(day, prefs, {
+    outfitIndex: previous?.outfitIndex,
+    reminderTextIndices: previous?.reminderTextIndices,
+  });
+  cache.set(key, state);
+  return state;
 }
 
 /** Clear all cached variations (e.g., if ever needed for testing). */

@@ -8,33 +8,39 @@
 </head>
 <body>
   <header id="location-bar">
-    <input
-      type="text"
-      id="zip-input"
-      inputmode="numeric"
-      maxlength="5"
-      placeholder="Zip code"
-      aria-label="Zip code"
-    />
+    <div id="zip-entry">
+      <input
+        type="text"
+        id="zip-input"
+        inputmode="numeric"
+        maxlength="5"
+        placeholder="Zip code"
+        aria-label="Zip code"
+        aria-describedby="zip-error location-status"
+      />
+      <button id="zip-submit-btn" type="button" aria-label="Search this zip code">→</button>
+    </div>
     <button id="locate-btn" type="button" aria-label="Use my location">
       <img src="assets/location.png" alt="" width="24" height="24" />
     </button>
     <button id="settings-btn" type="button" aria-label="Settings and info">
       <img src="assets/settings.png" alt="" width="24" height="24" />
     </button>
-    <p id="zip-error" class="error-text" hidden>Invalid zip code</p>
-    <p id="location-status" class="status-text" hidden></p>
+    <p id="zip-error" class="error-text" role="alert" hidden>Invalid zip code</p>
+    <p id="location-status" class="status-text" role="status" aria-live="polite" hidden></p>
   </header>
 
-  <main id="app">
+  <main id="app" aria-busy="false">
     <p id="placeholder-status">Enter a zip code or use your location to get started.</p>
 
     <div id="forecast-view" hidden>
       <div id="layout-grid">
         <div id="sidebar-panel">
           <ul id="reminders-list" aria-label="Reminders"></ul>
-          <p id="stats-row-desktop" class="stats-row"></p>
-          <div id="day-selector" role="group" aria-label="Choose a forecast day"></div>
+          <div id="forecast-controls">
+            <p id="stats-row-desktop" class="stats-row"></p>
+            <div id="day-selector" role="group" aria-label="Choose a forecast day"></div>
+          </div>
         </div>
 
         <div id="main-stage">
@@ -61,26 +67,36 @@
     <div class="spinner" role="status" aria-label="Loading"></div>
   </div>
 
-  <div id="error-panel" hidden>
+  <div id="error-panel" role="alertdialog" aria-modal="true" aria-labelledby="error-message" hidden>
     <p id="error-message">Couldn't load the forecast right now.</p>
     <button id="retry-btn" type="button">Retry</button>
   </div>
 
   <div id="settings-modal" hidden role="dialog" aria-modal="true" aria-label="Settings and info">
     <div id="settings-modal-content">
-      <div id="settings-tabs" role="tablist">
-        <button id="tab-settings" class="tab-btn selected" role="tab" aria-selected="true" type="button">Settings</button>
-        <button id="tab-info" class="tab-btn" role="tab" aria-selected="false" type="button">Info</button>
+      <div id="settings-header">
+        <div id="settings-tabs" role="tablist" aria-label="Settings and information">
+          <button id="tab-settings" class="tab-btn selected" role="tab" aria-selected="true" aria-controls="panel-settings" type="button">Settings</button>
+          <button id="tab-info" class="tab-btn" role="tab" aria-selected="false" aria-controls="panel-info" tabindex="-1" type="button">Info</button>
+        </div>
         <button id="settings-close-btn" type="button" aria-label="Close">✕</button>
       </div>
 
-      <div id="panel-settings" role="tabpanel">
-        <fieldset id="sensitivity-fieldset">
-          <legend>Where do cold, average, and hot feel like for you? (°F)</legend>
+      <div id="panel-settings" role="tabpanel" aria-labelledby="tab-settings">
+        <div id="sensitivity-fieldset" class="settings-group" role="group" aria-labelledby="sensitivity-heading">
+          <div id="sensitivity-heading" class="settings-group-heading">
+            Where do cold, average, and hot feel like for you? (°F)
+            <span class="sensitivity-help">
+              <button type="button" class="sensitivity-help-btn" aria-label="How temperature boundaries affect outfits" aria-describedby="sensitivity-help-text"><span aria-hidden="true">i</span></button>
+              <span id="sensitivity-help-text" class="sensitivity-help-text" role="tooltip">
+                Outfits use the daily feels-like high. Below blue is Cold; blue to green is Cool; green to orange is Mild; and orange or above is Warm.
+              </span>
+            </span>
+          </div>
           <div id="boundary-slider">
-            <input type="range" id="boundary-1" min="0" max="100" step="1" aria-label="Cold / cool boundary" />
-            <input type="range" id="boundary-2" min="0" max="100" step="1" aria-label="Cool / mild boundary" />
-            <input type="range" id="boundary-3" min="0" max="100" step="1" aria-label="Mild / warm boundary" />
+            <input type="range" id="boundary-1" min="0" max="100" step="1" aria-label="Cold / cool boundary" aria-describedby="boundary-1-readout" />
+            <input type="range" id="boundary-2" min="0" max="100" step="1" aria-label="Cool / mild boundary" aria-describedby="boundary-2-readout" />
+            <input type="range" id="boundary-3" min="0" max="100" step="1" aria-label="Mild / warm boundary" aria-describedby="boundary-3-readout" />
             <div id="boundary-track"></div>
           </div>
           <div id="boundary-readout">
@@ -93,21 +109,23 @@
             <span>Average</span>
             <span>Hot (tank/shorts)</span>
           </div>
-        </fieldset>
+        </div>
 
         <label class="toggle-row">
           <input type="checkbox" id="hydration-offset-toggle" />
           Apply my sensitivity to the hydration reminder too
         </label>
 
-        <fieldset>
-          <legend>Units</legend>
+        <div class="settings-group" role="radiogroup" aria-labelledby="units-heading">
+          <p id="units-heading" class="settings-group-heading">Units</p>
           <label><input type="radio" name="unit" value="F" /> °F</label>
           <label><input type="radio" name="unit" value="C" /> °C</label>
-        </fieldset>
+        </div>
+
+        <button id="settings-save-btn" type="button">Save changes</button>
       </div>
 
-      <div id="panel-info" role="tabpanel" hidden>
+      <div id="panel-info" role="tabpanel" aria-labelledby="tab-info" hidden>
         <p><strong>Created by:</strong> <a href="https://github.com/TristanTengGH2/Project3-WeatherInClass" target="_blank" rel="noopener">Tristan Teng</a></p>
         <p><strong>Weather data:</strong> <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a>, licensed under CC BY 4.0.</p>
         <p><strong>Recommendation methods:</strong> Outfit suggestions are based on general layering guidance for the given "feels-like" temperature. Sun-protection advice follows the <a href="https://www.epa.gov/sunsafety/uv-index-scale-0" target="_blank" rel="noopener">EPA's UV Index Scale</a> (sunscreen recommended at UV 3+). Hydration advice follows the <a href="https://www.weather.gov/safety/heat-index" target="_blank" rel="noopener">National Weather Service's heat index guidance</a>. Umbrella advice is based on the forecast's precipitation probability.</p>

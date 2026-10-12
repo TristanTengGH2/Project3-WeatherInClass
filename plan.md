@@ -24,16 +24,16 @@ During implementation, follow the approved plan in working checkpoints and keep 
 
 ## Approach
 
-**Structure:** Static site, plain HTML/CSS/JS, no build step, no backend — deploys directly to GitHub Pages. Rough file layout: `index.html`, `styles.css`, a few JS modules (API/geocoding calls, recommendation-rule logic, rendering, state/persistence), and an `assets/` folder for the 23 art files.
+**Structure:** Static site, plain HTML/CSS/JS, no build step, no backend — deploys directly to GitHub Pages. Rough file layout: `index.html`, `styles.css`, a few JS modules (API/geocoding calls, recommendation-rule logic, rendering, state/persistence), and an `assets/` folder for the 24 art files.
 
-**Data flow:** User sets a location (zip entry or "use my location") → resolved to lat/lon via Open-Meteo's geocoding API → forecast fetched from Open-Meteo for 7 days (`apparent_temperature`, UV index, PoP) → for the selected (location, date), a recommendation-state object is computed (outfit category, active reminders, randomly-chosen variation indices) per the rules in `spec.md` → every visual/text element on the main screen renders from that one state object. Settings (sensitivity offset, hydration-offset toggle, display unit) and the most-recent location persist in `localStorage`; the per-date variation state is in-memory only (per `spec.md`).
+**Data flow:** User sets a location (zip entry or "use my location") → resolved to lat/lon via Open-Meteo's geocoding API → forecast fetched from Open-Meteo for 7 days (`apparent_temperature`, UV index, PoP) → for the selected (location, date), a recommendation-state object is computed (outfit category, active reminders, randomly-chosen variation indices) per the rules in `spec.md` → every visual/text element on the main screen renders from that one state object. Settings (three temperature boundaries, hydration-boundary toggle, display unit) and the most-recent location persist in `localStorage`; the per-date variation state is in-memory only (per `spec.md`).
 
 **Dependencies:** Open-Meteo (forecast + geocoding endpoints, single provider, no API key), browser Geolocation API, `localStorage`, GitHub Pages for hosting. No external JS libraries required.
 
 **Task order (high level):** get a minimal deploy pipeline working first (so GitHub Pages is never a last-minute blocker) → build the weather/geocoding integration and its loading/error states, since everything else depends on live data → build the recommendation-rule engine and variation logic against placeholder art, so logic can be tested before final assets exist → wire the main screen UI to that state → build the Settings/Info tabbed screen → add persistence (localStorage) → accessibility and responsive/one-handed passes → swap in final AI-generated assets → full requirement verification against `spec.md` → usability testing → one revision → final redeploy. Asset creation itself can run in parallel starting early, since it doesn't block logic work.
 
 **Main risks:**
-- Keeping AI-generated art visually consistent across all 12 outfit variants + 10 icons (flagged in `research.md`) — may take several generation passes.
+- Keeping AI-generated art visually consistent across all 12 outfit variants + 12 icons (flagged in `research.md`) — may take several generation passes.
 - Open-Meteo is a single point of failure by design (brief requires one provider, no fallback) — error-state handling needs to be solid rather than an afterthought.
 - Zip-code → lat/lon geocoding accuracy for less common US zips.
 - Keeping recommendation logic centralized in one state object rather than letting individual UI pieces compute their own version of "what to show."
@@ -57,9 +57,9 @@ During implementation, follow the approved plan in working checkpoints and keep 
 - [x] Build the Settings/Info tabbed screen (3-handle boundary slider, hydration-offset toggle, units toggle, Info tab content: creator, data source, recommendation methods, privacy, art credits)
 - [x] Add `localStorage` persistence for the saved location and Settings preferences
 - [x] Implement the invalid-zip and location-permission-denied messaging from `spec.md`
-- [ ] Pass: accessibility baseline (no color-only signals, real text/ARIA, alt text, contrast, touch targets) — not yet audited
-- [ ] Pass: responsive layout (laptop side panel vs. phone stacked layout, one-handed phone reachability) — not yet built; current layout is single-column for both
-- [x] Swap in final AI-generated assets once ready, confirming consistent style across all 23 (24, incl. fog — see `assets/README.txt`)
+- [ ] Pass: accessibility baseline (no color-only signals, real text/ARIA, alt text, contrast, touch targets) — implementation/static audit complete; browser and screen-reader verification pending
+- [x] Pass: responsive layout (laptop side panel vs. phone stacked layout, one-handed phone reachability) — phone uses a stacked layout; laptop uses a side panel at ≥900px
+- [x] Swap in final AI-generated assets once ready, confirming consistent style across all 24 (see `assets/README.txt`)
 - [x] Test and fix each checkpoint against the specification before starting the next
 - [x] Commit meaningful working checkpoints
 - [x] Deploy to a public HTTPS URL (GitHub Pages) — live at https://tristantenggh2.github.io/Project3-WeatherInClass/
@@ -102,6 +102,12 @@ After all three sessions, summarize the strongest findings and the improvement t
 ## Revisions
 
 Record material plan changes and why they were made.
+
+**2026-10-12 — Added an explicit zip-code submit button.** The numeric keyboard shown by some phones does not expose a Return/Go key, so relying on the Enter-key shortcut could prevent phone Users from submitting a typed zip code. The visible 44px-minimum “Go” button keeps the existing Enter behavior and provides a platform-appropriate touch path.
+
+**2026-10-12 — Added actual high/low display and live preference recalculation.** Per Developer direction during browser review, the forecast display now uses Open-Meteo's actual daily maximum/minimum temperatures; the recommendation rules continue to use apparent temperature. Sensitivity and hydration-toggle changes now update the selected date immediately and cached dates when revisited, while preserving their random variation indices.
+
+**2026-10-12 — Added one Save changes action for Settings.** Per Developer direction, all Settings controls now edit a temporary draft for continuity. Saving applies/persists boundaries, hydration behavior, and units together and recalculates once; closing without saving discards the draft.
 
 ## Saving transcripts
 

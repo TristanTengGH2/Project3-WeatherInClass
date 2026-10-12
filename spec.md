@@ -41,8 +41,8 @@ Translate every fixed brief requirement and the selected research-driven feature
    - *Check:* with a location set, its zip/name is visible on screen without opening any other screen; entering a malformed or non-US zip shows the red error text under the box and does not update the recommendation state; denying the browser's location permission prompt shows the inline message and moves focus to the zip box.
 2. **Date / current vs. forecast.** The Mon–Sun day-selector row lets the User pick today or any of the next 6 days. The selected day is visually highlighted (filled/bordered), and a text label elsewhere on the main screen reads "Today" when today is selected, or "Forecast for [Day]" otherwise — never color/highlight alone.
    - *Check:* selecting a non-today day changes the visible label to "Forecast for [Day]"; selecting today changes it back to "Today"; a screen-reader pass confirms the label (not just the highlight) is announced.
-3. **Units.** Temperature is shown with its unit (°F or °C, per the Settings toggle) everywhere a temperature appears on the main screen.
-   - *Check:* temperature text includes the degree symbol and unit letter, both before and after toggling units in Settings.
+3. **Temperatures and units.** The main screen shows the selected day's actual forecast high and low (`temperature_2m_max` and `temperature_2m_min`) with their unit (°F or °C, per the Settings toggle). These displayed actual temperatures are separate from the daily apparent-temperature maximum used internally for outfit and hydration rules.
+   - *Check:* every selected day shows both `High [value]°F` and `Low [value]°F`; toggling units converts both values and changes both unit letters to °C without changing the underlying recommendation state.
 4. **Data source.** A small credit line (e.g., "Data: Open-Meteo") appears on the main screen, in addition to the full attribution on the Info tab.
    - *Check:* the credit text is visible on the main screen without navigating away.
 
@@ -64,9 +64,11 @@ Translate every fixed brief requirement and the selected research-driven feature
 
 ## Recommendation state and data flow
 
-**Inputs** (from Open-Meteo, for the selected location + date): `apparent_temperature`, UV index, precipitation probability (PoP).
+**Inputs** (from Open-Meteo, for the selected location + date): daily apparent-temperature maximum (recommendation rules), actual temperature maximum and minimum (display), UV index, precipitation probability (PoP).
 
 **User preference inputs** (from Settings, device-stored): three user-set temperature boundaries (cold/cool, cool/mild, mild/warm), each adjustable 0–100°F via a 3-handle slider — defaults 35°F, 45°F, 60°F, matching the conventional bands from `research.md`; a toggle for whether the user's mild/warm boundary also shifts the hydration reminder threshold (default **off**); display unit (°F/°C, display-only).
+
+**Settings application behavior:** All Settings controls edit a temporary draft. A visible **Save changes** button applies and device-stores the three boundaries, hydration toggle, and display unit together, then recalculates the selected recommendation once. Closing the screen without saving discards the draft and leaves the active preferences unchanged. A circled information control beside the sensitivity prompt explains the four boundary ranges and feels-like input on hover, keyboard focus, or phone tap.
 
 **Recommendation rules:**
 - Outfit category (one of 4), from `apparent_temperature` against the user's 3 boundaries (`b1` ≤ `b2` ≤ `b3`, enforced by the slider): Cold (< `b1`), Cool (`b1`–`b2`), Mild (`b2`–`b3`), Warm (≥ `b3`).
@@ -74,7 +76,7 @@ Translate every fixed brief requirement and the selected research-driven feature
 - Sun protection reminder: active when UV index ≥3 (not temperature-based; boundaries never apply).
 - Hydration reminder: active when `apparent_temperature` ≥80°F, shifted by (`b3` − 60°F) only if the Settings toggle for it is on. Off by default, since heat risk is safety-driven rather than comfort-driven.
 
-**Shared state:** one recommendation-state object per (location, date) combination holds: the outfit category, which reminders are active, and the randomly-chosen outfit/wording variation indices (see Content variation). The character art, weather icon, written recommendation text, and all active reminder text are all read from this single object — none are computed independently elsewhere.
+**Shared state:** one recommendation-state object per (location, date) combination holds: the actual high/low display temperatures, apparent temperature used by the rules, outfit category, which reminders are active, and the randomly-chosen outfit/wording variation indices (see Content variation). The character art, weather icon, displayed temperatures, written recommendation text, and all active reminder text are all read from this single object — none are computed independently elsewhere.
 
 ## Content variation
 
@@ -82,7 +84,7 @@ Translate every fixed brief requirement and the selected research-driven feature
 - When a recommendation state is first computed for a given (location, date) pair, one outfit variation index (1–3) and one wording-variation index (1–3) per *active* reminder are chosen independently at random and stored in that pair's state object.
 - Returning to a previously selected date (within the same tab session) reuses the stored state object rather than re-rolling — same outfit variation, same reminder wording.
 - Per Developer decision: this persistence is **in-memory only** (lasts as long as the tab stays open); it does not survive a page reload. Only the most-recent *location* persists across reloads (via localStorage, per `research.md`'s privacy decision) — the specific variation shown does not.
-- Changing the sensitivity or unit preference does not re-roll variations; it only affects which category/thresholds apply going forward.
+- Saving changed sensitivity boundaries or the hydration-boundary toggle immediately recalculates the selected date; other cached dates recalculate when next selected. These recalculations do not re-roll stored outfit/reminder variation indices; they only change which outfit category and reminders apply. Saving a changed display unit converts the high/low text without re-rolling the recommendation. Unsaved changes have no effect.
 
 ## Assets
 
@@ -117,6 +119,12 @@ Reminder and weather icons use one shared icon-art style (informed by the pixel-
 After implementation or testing, record requirement changes and the evidence that prompted them. Update the screen drawings when a material layout or interaction changes.
 
 **2026-10-11 — Sensitivity control changed from single offset slider to 3-handle boundary slider.** During the build, the Developer asked for the sensitivity control to let the User directly set where "cold" (puffer-coat weather), "average," and "hot" (tank-top weather) fall on a 0–100°F range, rather than a single combined offset applied uniformly. This reverses the original "no per-threshold controls" decision (see prior Out of scope wording). Updated: Recommendation state and data flow (3 user-set boundaries replace the single offset; hydration-toggle math now keyed off the mild/warm boundary vs. its 60°F default); Out of scope (removed the "no per-threshold controls" exclusion). `research.md`'s additional-feature entry updated to match.
+
+**2026-10-12 — Added actual high/low display and immediate preference recalculation.** The Developer chose the conventional weather-app display of actual daily high and low temperatures while retaining apparent temperature as the input to outfit/hydration guidance. The Developer also required boundary and hydration-toggle changes to update the selected date immediately and other cached dates when revisited, without re-rolling their random content variations.
+
+**2026-10-12 — Settings changes now require an explicit save.** After reviewing live recalculation, the Developer chose one consistent transactional pattern for all Settings controls. Boundaries, hydration behavior, and display units now remain a draft until **Save changes** is pressed; closing Settings discards the draft. Saving applies the group once and triggers the recalculation described above.
+
+**2026-10-12 — Added sensitivity-boundary help.** Browser review showed that the three handles' effect on four outfit categories was not self-explanatory. Per Developer direction, a circled information control now exposes a concise explanation on hover, focus, or tap.
 
 ## Approval
 

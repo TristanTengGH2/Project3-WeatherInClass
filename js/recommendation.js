@@ -78,7 +78,7 @@ export function computeReminderFlags(day, prefs) {
   return {
     umbrella: day.precipProbMax >= 40,
     sun: day.uvIndexMax >= 3,
-    hydration: day.apparentTempF + hydrationOffset >= 80,
+    hydration: day.apparentTempF >= 80 + hydrationOffset,
   };
 }
 
@@ -86,14 +86,22 @@ function randomIndex() {
   return Math.floor(Math.random() * 3);
 }
 
-/** Build a fresh recommendation state for one (location, date) day's forecast. */
-export function buildRecommendationState(day, prefs) {
+/**
+ * Build recommendation state for one (location, date) forecast.
+ * Existing variation indices can be supplied when preferences change so the
+ * category/reminders recalculate without visibly re-rolling content.
+ */
+export function buildRecommendationState(day, prefs, variations = {}) {
   const category = classifyOutfitCategory(day.apparentTempF, prefs.boundaries);
-  const outfitIndex = randomIndex();
+  const outfitIndex = variations.outfitIndex ?? randomIndex();
   const flags = computeReminderFlags(day, prefs);
+  const reminderTextIndices = { ...(variations.reminderTextIndices || {}) };
   const reminders = Object.entries(flags)
     .filter(([, active]) => active)
-    .map(([type]) => ({ type, textIndex: randomIndex() }));
+    .map(([type]) => {
+      reminderTextIndices[type] ??= randomIndex();
+      return { type, textIndex: reminderTextIndices[type] };
+    });
 
   return {
     date: day.date,
@@ -104,8 +112,11 @@ export function buildRecommendationState(day, prefs) {
     outfitImage: OUTFITS[category][outfitIndex],
     icon: day.icon,
     apparentTempF: day.apparentTempF,
+    actualHighF: day.actualHighF,
+    actualLowF: day.actualLowF,
     uvIndexMax: day.uvIndexMax,
     windSpeedMph: day.windSpeedMph,
+    reminderTextIndices,
     reminders,
   };
 }
