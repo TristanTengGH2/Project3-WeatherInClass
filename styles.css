@@ -275,6 +275,10 @@ input {
   justify-self: center;
 }
 
+#stat-rain-mobile {
+  margin: 6px 0 2px;
+}
+
 .stats-row {
   font-size: 14px;
   color: var(--ink-soft);

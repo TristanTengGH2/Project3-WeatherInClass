@@ -116,6 +116,7 @@ export function buildRecommendationState(day, prefs, variations = {}) {
     actualHighF: day.actualHighF,
     actualLowF: day.actualLowF,
     uvIndexMax: day.uvIndexMax,
+    precipProbMax: day.precipProbMax,
     windSpeedMph: day.windSpeedMph,
     reminderTextIndices,
     reminders,

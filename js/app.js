@@ -5,9 +5,9 @@ import {
   weatherCodeToIcon,
   LocationError,
   WeatherServiceError,
-} from "./weather.js?v=current-conditions-1";
-import { REMINDER_TEXTS, REMINDER_ICONS, DEFAULT_BOUNDARIES } from "./recommendation.js?v=current-conditions-1";
-import { getRecommendationState } from "./state.js?v=current-conditions-1";
+} from "./weather.js?v=precip-display-1";
+import { REMINDER_TEXTS, REMINDER_ICONS, DEFAULT_BOUNDARIES } from "./recommendation.js?v=precip-display-1";
+import { getRecommendationState } from "./state.js?v=precip-display-1";
 import { saveLocation, loadLocation, savePrefs, loadPrefs } from "./storage.js?v=7cfa01b";
 
 const zipInput = document.getElementById("zip-input");
@@ -28,6 +28,7 @@ const temperatureDisplay = document.getElementById("temperature-display");
 const recommendationTextEl = document.getElementById("recommendation-text");
 const statUvMobile = document.getElementById("stat-uv-mobile");
 const statWindMobile = document.getElementById("stat-wind-mobile");
+const statRainMobile = document.getElementById("stat-rain-mobile");
 const statsRowDesktop = document.getElementById("stats-row-desktop");
 const remindersList = document.getElementById("reminders-list");
 const daySelector = document.getElementById("day-selector");
@@ -167,9 +168,11 @@ function renderSelectedDay() {
 
   const uvText = `UV ${Math.round(state.uvIndexMax)}`;
   const windText = `Wind ${Math.round(state.windSpeedMph)} mph`;
+  const rainText = `Rain ${Math.round(state.precipProbMax)}%`;
   statUvMobile.textContent = uvText;
   statWindMobile.textContent = windText;
-  statsRowDesktop.textContent = `${windText} · ${uvText}`;
+  statRainMobile.textContent = rainText;
+  statsRowDesktop.textContent = `${windText} · ${uvText} · ${rainText}`;
 
   remindersList.innerHTML = "";
   state.reminders.forEach((r) => {
