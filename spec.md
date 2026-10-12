@@ -132,6 +132,8 @@ After implementation or testing, record requirement changes and the evidence tha
 
 **2026-10-12 — Added a readable cozy-game visual theme.** Per Developer direction, the interface now uses a moderate pixel-farm-inspired treatment without copying proprietary game assets: warm cream surfaces, earthy green/brown accents, chunky borders and shadows, and subtle grid texture. Fredoka is limited to key display text and actions, while Nunito is used for body and interface copy. Both open fonts are self-hosted so the privacy behavior remains unchanged.
 
+**2026-10-12 — Added a wooden sign behind the character.** Per Developer direction, the weather icon and outfit character now sit on a responsive CSS-built wooden sign with subtle plank lines, a dark pixel-style frame, and corner bolts. UV and wind badges remain legible on the sign; high/low temperatures and recommendation text remain on the cream surface below.
+
 ## Approval
 
 The Developer reviews and explicitly approves this specification and its screen designs before planning begins.
