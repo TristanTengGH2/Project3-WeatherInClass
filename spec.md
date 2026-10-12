@@ -98,9 +98,9 @@ All visual assets are **AI-generated** (per `research.md`'s decision), PNG forma
 | Reminder icons (umbrella, sun protection, hydration) | 3 | Main screen reminder list |
 | Settings gear icon | 1 | Main screen |
 | Location icon | 1 | Main screen |
-| **Total** | **23** | |
+| **Total** | **24** | |
 
-Reminder and weather icons use one shared icon-art style (informed by the pixel-icon reference in `reference/`); outfit variations keep the same character design across all 12 so the character stays recognizable (informed by the Duolingo reference). Exact style (e.g., pixel art, or another single style) is left to the generation tool/process at build time, but whichever is chosen must be applied uniformly across all 23 assets — no mixing styles between the character, weather icons, and reminder icons.
+Reminder and weather icons use one shared icon-art style (informed by the pixel-icon reference in `reference/`); outfit variations keep the same character design across all 12 so the character stays recognizable (informed by the Duolingo reference). Final style: pixel art, generated via ChatGPT, with transparent backgrounds produced by a flood-fill transparency pass (see `assets/README.txt`).
 
 ## Out of scope
 
