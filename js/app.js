@@ -1,17 +1,20 @@
 import {
-  geocodeZip,
+  geocodeLocation,
+  searchLocations,
   getDeviceLocation,
   fetchForecast,
   weatherCodeToIcon,
   LocationError,
   WeatherServiceError,
-} from "./weather.js?v=precip-display-1";
-import { REMINDER_TEXTS, REMINDER_ICONS, DEFAULT_BOUNDARIES } from "./recommendation.js?v=precip-display-1";
-import { getRecommendationState } from "./state.js?v=precip-display-1";
+} from "./weather.js?v=location-search-1";
+import { REMINDER_TEXTS, REMINDER_ICONS, DEFAULT_BOUNDARIES } from "./recommendation.js?v=location-search-1";
+import { getRecommendationState } from "./state.js?v=location-search-1";
 import { saveLocation, loadLocation, savePrefs, loadPrefs } from "./storage.js?v=7cfa01b";
 
 const zipInput = document.getElementById("zip-input");
 const zipSubmitBtn = document.getElementById("zip-submit-btn");
+const locationSearch = document.getElementById("location-search");
+const locationSuggestions = document.getElementById("location-suggestions");
 const locateBtn = document.getElementById("locate-btn");
 const pageHeader = document.getElementById("location-bar");
 const appEl = document.getElementById("app");
@@ -65,6 +68,10 @@ let currentLocationLabel = "";
 let currentDays = [];
 let selectedIndex = 0;
 let lastAction = null; // re-run on Retry
+let suggestions = [];
+let activeSuggestionIndex = -1;
+let suggestionTimer = null;
+let suggestionRequest = null;
 
 function setLoading(isLoading) {
   loadingOverlay.hidden = !isLoading;
@@ -91,6 +98,7 @@ function hideError() {
 
 function clearZipError() {
   zipError.hidden = true;
+  zipError.classList.remove("shake");
   zipInput.setAttribute("aria-invalid", "false");
 }
 
@@ -99,6 +107,9 @@ function showZipError() {
   zipInput.setAttribute("aria-invalid", "true");
   forecastView.hidden = true;
   placeholderStatus.hidden = true;
+  zipError.classList.remove("shake");
+  void zipError.offsetWidth;
+  zipError.classList.add("shake");
 }
 
 function clearLocationStatus() {
@@ -109,6 +120,73 @@ function clearLocationStatus() {
 function showLocationStatus(text) {
   locationStatus.hidden = false;
   locationStatus.textContent = text;
+}
+
+function clearSuggestions() {
+  window.clearTimeout(suggestionTimer);
+  suggestionTimer = null;
+  suggestionRequest?.abort();
+  suggestionRequest = null;
+  suggestions = [];
+  activeSuggestionIndex = -1;
+  locationSuggestions.innerHTML = "";
+  locationSuggestions.hidden = true;
+  zipInput.setAttribute("aria-expanded", "false");
+  zipInput.removeAttribute("aria-activedescendant");
+}
+
+function setActiveSuggestion(index) {
+  if (!suggestions.length) return;
+  activeSuggestionIndex = (index + suggestions.length) % suggestions.length;
+  [...locationSuggestions.children].forEach((option, optionIndex) => {
+    const isActive = optionIndex === activeSuggestionIndex;
+    option.setAttribute("aria-selected", String(isActive));
+    if (isActive) {
+      zipInput.setAttribute("aria-activedescendant", option.id);
+      option.scrollIntoView({ block: "nearest" });
+    }
+  });
+}
+
+function renderSuggestions(matches) {
+  suggestions = matches;
+  activeSuggestionIndex = -1;
+  locationSuggestions.innerHTML = "";
+
+  matches.forEach((location, index) => {
+    const option = document.createElement("li");
+    option.id = `location-suggestion-${index}`;
+    option.setAttribute("role", "option");
+    option.setAttribute("aria-selected", "false");
+    option.textContent = location.name;
+    option.addEventListener("pointerdown", (event) => {
+      event.preventDefault();
+      selectLocation(location);
+    });
+    locationSuggestions.appendChild(option);
+  });
+
+  locationSuggestions.hidden = matches.length === 0;
+  zipInput.setAttribute("aria-expanded", String(matches.length > 0));
+}
+
+async function requestSuggestions() {
+  const query = zipInput.value.trim();
+  if (query.length < 2 || (/^\d+$/.test(query) && query.length < 5)) {
+    clearSuggestions();
+    return;
+  }
+
+  suggestionRequest?.abort();
+  const request = new AbortController();
+  suggestionRequest = request;
+  try {
+    const matches = await searchLocations(query, { signal: request.signal });
+    if (request !== suggestionRequest || query !== zipInput.value.trim()) return;
+    renderSuggestions(matches);
+  } catch (error) {
+    if (error.name !== "AbortError") clearSuggestions();
+  }
 }
 
 function dayLabel(dateStr, index) {
@@ -247,16 +325,46 @@ async function loadForecastFor(lat, lon, label, locationKey, persistAs) {
   }
 }
 
-async function handleZipSubmit() {
-  const zip = zipInput.value.trim();
+function locationStorageValue(location) {
+  return {
+    type: "search",
+    query: location.query || location.name,
+    id: location.id,
+    lat: location.lat,
+    lon: location.lon,
+    name: location.name,
+  };
+}
+
+async function selectLocation(location) {
+  suggestionRequest?.abort();
+  zipInput.value = location.name;
+  clearSuggestions();
   clearZipError();
   clearLocationStatus();
-  lastAction = handleZipSubmit;
+  const locationKey = `search:${location.id || `${location.lat.toFixed(3)},${location.lon.toFixed(3)}`}`;
+  const savedValue = locationStorageValue(location);
+  lastAction = () => loadForecastFor(
+    location.lat,
+    location.lon,
+    location.name,
+    locationKey,
+    savedValue
+  );
+  await lastAction();
+}
+
+async function handleLocationSubmit() {
+  const query = zipInput.value.trim();
+  clearSuggestions();
+  clearZipError();
+  clearLocationStatus();
+  lastAction = handleLocationSubmit;
 
   setLoading(true);
   let location;
   try {
-    location = await geocodeZip(zip);
+    location = await geocodeLocation(query);
   } catch (err) {
     setLoading(false);
     if (err instanceof LocationError) {
@@ -270,13 +378,7 @@ async function handleZipSubmit() {
     throw err;
   }
   setLoading(false);
-  await loadForecastFor(location.lat, location.lon, location.name, `zip:${location.zip}`, {
-    type: "zip",
-    zip: location.zip,
-    lat: location.lat,
-    lon: location.lon,
-    name: location.name,
-  });
+  await selectLocation(location);
 }
 
 async function handleLocate() {
@@ -290,7 +392,7 @@ async function handleLocate() {
     pos = await getDeviceLocation();
   } catch {
     setLoading(false);
-    showLocationStatus("Location access denied — enter your zip code instead");
+    showLocationStatus("Location access denied — enter a ZIP or city and state instead");
     zipInput.focus();
     return;
   }
@@ -304,12 +406,41 @@ async function handleLocate() {
 }
 
 zipInput.addEventListener("keydown", (e) => {
-  if (e.key === "Enter") handleZipSubmit();
+  if (e.key === "ArrowDown" && suggestions.length) {
+    e.preventDefault();
+    setActiveSuggestion(activeSuggestionIndex + 1);
+    return;
+  }
+  if (e.key === "ArrowUp" && suggestions.length) {
+    e.preventDefault();
+    setActiveSuggestion(activeSuggestionIndex - 1);
+    return;
+  }
+  if (e.key === "Escape") {
+    clearSuggestions();
+    return;
+  }
+  if (e.key === "Enter") {
+    e.preventDefault();
+    if (activeSuggestionIndex >= 0) {
+      selectLocation(suggestions[activeSuggestionIndex]);
+    } else {
+      handleLocationSubmit();
+    }
+  }
 });
 
-// Explicit button, since inputmode="numeric" often shows an iOS keyboard with no
-// Return/Go key, making the Enter-key shortcut above unreachable on many phones.
-zipSubmitBtn.addEventListener("click", handleZipSubmit);
+zipInput.addEventListener("input", () => {
+  clearSuggestions();
+  clearZipError();
+  suggestionTimer = window.setTimeout(requestSuggestions, 250);
+});
+
+document.addEventListener("pointerdown", (event) => {
+  if (!locationSearch.contains(event.target)) clearSuggestions();
+});
+
+zipSubmitBtn.addEventListener("click", handleLocationSubmit);
 
 locateBtn.addEventListener("click", handleLocate);
 
@@ -448,15 +579,20 @@ document.querySelectorAll('input[name="unit"]').forEach((radio) => {
 
 const savedLocation = loadLocation();
 if (savedLocation) {
-  if (savedLocation.type === "zip") {
-    zipInput.value = savedLocation.zip;
-  }
+  if (savedLocation.type === "zip") zipInput.value = savedLocation.zip;
+  if (savedLocation.type === "search") zipInput.value = savedLocation.query || savedLocation.name;
+
+  const isEnteredLocation = savedLocation.type === "zip" || savedLocation.type === "search";
+  const savedLocationKey = savedLocation.type === "zip"
+    ? `zip:${savedLocation.zip}`
+    : savedLocation.type === "search"
+      ? `search:${savedLocation.id || `${savedLocation.lat.toFixed(3)},${savedLocation.lon.toFixed(3)}`}`
+      : `geo:${savedLocation.lat.toFixed(2)},${savedLocation.lon.toFixed(2)}`;
+
   loadForecastFor(
     savedLocation.lat,
     savedLocation.lon,
-    savedLocation.type === "zip" ? savedLocation.name : "Current location",
-    savedLocation.type === "zip"
-      ? `zip:${savedLocation.zip}`
-      : `geo:${savedLocation.lat.toFixed(2)},${savedLocation.lon.toFixed(2)}`
+    isEnteredLocation ? savedLocation.name : "Current location",
+    savedLocationKey
   );
 }

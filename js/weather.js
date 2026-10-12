@@ -3,20 +3,66 @@ const FORECAST_URL = "https://api.open-meteo.com/v1/forecast";
 
 const ZIP_PATTERN = /^\d{5}$/;
 
+const US_STATE_ABBREVIATIONS = {
+  Alabama: "AL", Alaska: "AK", Arizona: "AZ", Arkansas: "AR", California: "CA",
+  Colorado: "CO", Connecticut: "CT", Delaware: "DE", Florida: "FL", Georgia: "GA",
+  Hawaii: "HI", Idaho: "ID", Illinois: "IL", Indiana: "IN", Iowa: "IA",
+  Kansas: "KS", Kentucky: "KY", Louisiana: "LA", Maine: "ME", Maryland: "MD",
+  Massachusetts: "MA", Michigan: "MI", Minnesota: "MN", Mississippi: "MS", Missouri: "MO",
+  Montana: "MT", Nebraska: "NE", Nevada: "NV", "New Hampshire": "NH", "New Jersey": "NJ",
+  "New Mexico": "NM", "New York": "NY", "North Carolina": "NC", "North Dakota": "ND",
+  Ohio: "OH", Oklahoma: "OK", Oregon: "OR", Pennsylvania: "PA", "Rhode Island": "RI",
+  "South Carolina": "SC", "South Dakota": "SD", Tennessee: "TN", Texas: "TX", Utah: "UT",
+  Vermont: "VT", Virginia: "VA", Washington: "WA", "West Virginia": "WV", Wisconsin: "WI",
+  Wyoming: "WY", "District of Columbia": "DC",
+};
+
 export class LocationError extends Error {}
 export class WeatherServiceError extends Error {}
 
-/** Resolve a US zip code to {lat, lon, name}. Throws LocationError if invalid/not found. */
-export async function geocodeZip(zip) {
-  if (!ZIP_PATTERN.test(zip)) {
-    throw new LocationError("Invalid zip code");
-  }
+function normalizeText(value) {
+  return value.trim().toLowerCase().replace(/\./g, "");
+}
+
+function stateMatches(admin1, requestedState) {
+  if (!requestedState) return true;
+  const fullName = normalizeText(admin1 || "");
+  const abbreviation = normalizeText(US_STATE_ABBREVIATIONS[admin1] || "");
+  const requested = normalizeText(requestedState);
+  return requested === fullName || requested === abbreviation;
+}
+
+function locationFromResult(result, query) {
+  const state = US_STATE_ABBREVIATIONS[result.admin1] || result.admin1;
+  return {
+    id: result.id,
+    lat: result.latitude,
+    lon: result.longitude,
+    name: state ? `${result.name}, ${state}` : result.name,
+    query,
+  };
+}
+
+/** Return matching US locations for an entered ZIP, city, or "City, State" query. */
+export async function searchLocations(rawQuery, { signal, count = 8 } = {}) {
+  const query = rawQuery.trim();
+  if (!query || (/^\d+$/.test(query) && !ZIP_PATTERN.test(query))) return [];
+
+  const [cityOrZip, requestedState = ""] = query.split(",", 2).map((part) => part.trim());
+  if (cityOrZip.length < 2) return [];
 
   let response;
   try {
-    const url = `${GEOCODING_URL}?name=${encodeURIComponent(zip)},US&count=5&language=en&format=json`;
-    response = await fetch(url);
-  } catch {
+    const params = new URLSearchParams({
+      name: cityOrZip,
+      count: "10",
+      language: "en",
+      format: "json",
+      countryCode: "US",
+    });
+    response = await fetch(`${GEOCODING_URL}?${params}`, { signal });
+  } catch (error) {
+    if (error.name === "AbortError") throw error;
     throw new WeatherServiceError("Network error while looking up location");
   }
 
@@ -25,17 +71,26 @@ export async function geocodeZip(zip) {
   }
 
   const data = await response.json();
-  const match = (data.results || []).find((r) => r.country_code === "US");
-  if (!match) {
-    throw new LocationError("Invalid zip code");
-  }
+  const uniqueMatches = new Map();
+  (data.results || [])
+    .filter((result) => result.country_code === "US")
+    .filter((result) => stateMatches(result.admin1, requestedState))
+    .filter((result) => !ZIP_PATTERN.test(query) || result.postcodes?.includes(query))
+    .map((result) => locationFromResult(result, query))
+    .forEach((location) => {
+      if (!uniqueMatches.has(location.name)) uniqueMatches.set(location.name, location);
+    });
 
-  return {
-    lat: match.latitude,
-    lon: match.longitude,
-    name: match.admin1 ? `${match.name}, ${match.admin1}` : match.name,
-    zip,
-  };
+  return [...uniqueMatches.values()].slice(0, count);
+}
+
+/** Resolve a ZIP, city, or "City, State" query to one US location. */
+export async function geocodeLocation(query) {
+  const matches = await searchLocations(query, { count: 1 });
+  if (!matches.length) {
+    throw new LocationError("Invalid location");
+  }
+  return matches[0];
 }
 
 /** Resolve the browser's geolocation to {lat, lon}. Rejects with a GeolocationPositionError on denial. */

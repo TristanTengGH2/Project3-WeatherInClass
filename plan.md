@@ -50,13 +50,14 @@ During implementation, follow the approved plan in working checkpoints and keep 
 
 - [x] Create or source the assets listed in `spec.md`, starting early (runs in parallel with the tasks below)
 - [x] Scaffold the static site (`index.html`, `styles.css`, JS modules) and deploy an empty/placeholder page to GitHub Pages, so the deploy pipeline is proven before any feature work
-- [x] Build the Open-Meteo geocoding + forecast fetch (zip → lat/lon → 7-day forecast with `apparent_temperature`, UV index, PoP), with the loading overlay and service-error/retry states from `spec.md`
+- [x] Build the Open-Meteo geocoding + forecast fetch (ZIP or city/state → lat/lon → 7-day forecast with `apparent_temperature`, UV index, PoP), with the loading overlay and service-error/retry states from `spec.md`
 - [x] Build the recommendation-rule engine: temperature-band categories, reminder thresholds, boundary adjustment (incl. hydration toggle), unit conversion — testable against placeholder art before final assets exist
 - [x] Build in-memory per-(location, date) state with independent random variation selection and reuse-on-reselect, per `spec.md`'s Content variation section
-- [x] Build the main screen UI (character, weather icon, temperature, written recommendation, reminders, Mon–Sun forecast selector, zip box + location icon) wired to the recommendation state, using the approved screen drawings for layout
+- [x] Build the main screen UI (character, weather icon, temperature, written recommendation, reminders, seven-day forecast selector, location search + location icon) wired to the recommendation state, using the approved screen drawings for layout
 - [x] Build the Settings/Info tabbed screen (3-handle boundary slider, hydration-offset toggle, units toggle, Info tab content: creator, data source, recommendation methods, privacy, art credits)
 - [x] Add `localStorage` persistence for the saved location and Settings preferences
-- [x] Implement the invalid-zip and location-permission-denied messaging from `spec.md`
+- [x] Implement the invalid-location and location-permission-denied messaging from `spec.md`
+- [x] Expand location entry to ZIP or US city/state with immediate-load autocomplete and keyboard support
 - [x] Add Open-Meteo current temperature and current-condition icon to Today while retaining daily high/low and forecast-only future dates
 - [x] Display the selected day's maximum precipitation probability on both laptop and phone layouts
 - [ ] Pass: accessibility baseline (no color-only signals, real text/ARIA, alt text, contrast, touch targets) — implementation/static audit complete; browser and screen-reader verification pending
@@ -118,6 +119,8 @@ Record material plan changes and why they were made.
 **2026-10-12 — Stacked desktop weather stats above the day selector.** The desktop forecast controls now use a vertical layout so wind, UV, and rain sit directly above the weekday buttons. The phone layout remains unchanged.
 
 **2026-10-12 — Added calendar day numbers to forecast buttons.** Each forecast button now renders the day number under its weekday on both laptop and phone, using the date returned with that forecast. Full-date accessible labels preserve clarity for screen readers.
+
+**2026-10-12 — Expanded location entry and made invalid feedback more visible.** The approved search flow uses one field for US ZIP or city/state entry, debounced Open-Meteo suggestions, immediate loading on suggestion selection, and the existing arrow for manual submission. The invalid-location message is larger and briefly shakes unless reduced motion is requested. Existing saved ZIP records remain compatible.
 
 ## Saving transcripts
 

@@ -4,21 +4,30 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Weather in Class</title>
-  <link rel="stylesheet" href="styles.css?v=day-number-1" />
+  <link rel="stylesheet" href="styles.css?v=location-search-1" />
 </head>
 <body>
   <header id="location-bar">
-    <div id="zip-entry">
-      <input
-        type="text"
-        id="zip-input"
-        inputmode="numeric"
-        maxlength="5"
-        placeholder="Zip code"
-        aria-label="Zip code"
-        aria-describedby="zip-error location-status"
-      />
-      <button id="zip-submit-btn" type="button" aria-label="Search this zip code">→</button>
+    <div id="location-search">
+      <div id="zip-entry">
+        <input
+          type="search"
+          id="zip-input"
+          inputmode="search"
+          maxlength="80"
+          placeholder="ZIP or City, State"
+          aria-label="ZIP or City, State"
+          aria-describedby="zip-error location-status"
+          aria-controls="location-suggestions"
+          aria-expanded="false"
+          aria-autocomplete="list"
+          role="combobox"
+          autocomplete="off"
+          spellcheck="false"
+        />
+        <button id="zip-submit-btn" type="button" aria-label="Search this location">→</button>
+      </div>
+      <ul id="location-suggestions" role="listbox" aria-label="Location suggestions" hidden></ul>
     </div>
     <button id="locate-btn" type="button" aria-label="Use my location">
       <img src="assets/location.png" alt="" width="24" height="24" />
@@ -26,12 +35,12 @@
     <button id="settings-btn" type="button" aria-label="Settings and info">
       <img src="assets/settings.png" alt="" width="24" height="24" />
     </button>
-    <p id="zip-error" class="error-text" role="alert" hidden>Invalid zip code</p>
+    <p id="zip-error" class="error-text" role="alert" hidden>Oops! Try a ZIP or City, State.</p>
     <p id="location-status" class="status-text" role="status" aria-live="polite" hidden></p>
   </header>
 
   <main id="app" aria-busy="false">
-    <p id="placeholder-status">Enter a zip code or use your location to get started.</p>
+    <p id="placeholder-status">Enter a ZIP or city and state, or use your location to get started.</p>
 
     <div id="forecast-view" hidden>
       <div id="layout-grid">
@@ -131,13 +140,13 @@
         <p><strong>Created by:</strong> <a href="https://github.com/TristanTengGH2/Project3-WeatherInClass" target="_blank" rel="noopener">Tristan Teng</a></p>
         <p><strong>Weather data:</strong> <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a>, licensed under CC BY 4.0.</p>
         <p><strong>Recommendation methods:</strong> Outfit suggestions are based on general layering guidance for the given "feels-like" temperature. Sun-protection advice follows the <a href="https://www.epa.gov/sunsafety/uv-index-scale-0" target="_blank" rel="noopener">EPA's UV Index Scale</a> (sunscreen recommended at UV 3+). Hydration advice follows the <a href="https://www.weather.gov/safety/heat-index" target="_blank" rel="noopener">National Weather Service's heat index guidance</a>. Umbrella advice is based on the forecast's precipitation probability.</p>
-        <p><strong>Privacy:</strong> This app has no account and no server. Your most recent location is saved only in your browser's local storage, on this device. Location is only requested when you tap the location button; you can always type a zip code instead.</p>
+        <p><strong>Privacy:</strong> This app has no account and no server. Your most recent location is saved only in your browser's local storage, on this device. Search and weather requests go directly to Open-Meteo. Device location is requested only when you tap the location button; you can always search by ZIP or city and state instead.</p>
         <p><strong>Art credits:</strong> All character and icon art is AI-generated (pixel-art style).</p>
         <p><strong>Fonts:</strong> Fredoka and Nunito are used under the SIL Open Font License 1.1 and are hosted with this site.</p>
       </div>
     </div>
   </div>
 
-  <script type="module" src="js/app.js?v=day-number-1"></script>
+  <script type="module" src="js/app.js?v=location-search-1"></script>
 </body>
 </html>
