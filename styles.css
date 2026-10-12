@@ -89,12 +89,46 @@ body {
   color: #444;
 }
 
+#layout-grid {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  gap: 8px;
+}
+
+#sidebar-panel {
+  order: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  gap: 8px;
+}
+
+#main-stage {
+  order: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
 #character-stage {
+  display: grid;
+  grid-template-columns: 90px 1fr 90px;
+  align-items: center;
+  justify-items: center;
+  min-height: 260px;
+  width: 100%;
+  max-width: 420px;
+}
+
+#character-visual {
   position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
-  min-height: 260px;
 }
 
 #weather-icon {
@@ -106,6 +140,27 @@ body {
 #character-sprite {
   max-height: 220px;
   image-rendering: pixelated;
+}
+
+.stat-flank {
+  font-size: 13px;
+  font-weight: 600;
+  color: #444;
+  background: #fff;
+  border-radius: 6px;
+  padding: 4px 8px;
+  white-space: nowrap;
+  justify-self: center;
+}
+
+.stats-row {
+  font-size: 14px;
+  color: #444;
+  margin: 0;
+}
+
+#stats-row-desktop {
+  display: none;
 }
 
 #temperature-display {
@@ -441,4 +496,55 @@ body {
 #panel-info p {
   font-size: 14px;
   line-height: 1.5;
+}
+
+/* Laptop layout: side panel (reminders, stats, forecast selector) next to the
+   character stage, per the hand-drawn desktop sketch, rather than a stretched
+   copy of the phone's stacked layout. */
+@media (min-width: 900px) {
+  #location-bar {
+    justify-content: flex-start;
+    padding-left: 32px;
+  }
+
+  #forecast-view {
+    align-items: stretch;
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+
+  #layout-grid {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 32px;
+  }
+
+  #sidebar-panel {
+    order: 1;
+    width: 260px;
+    flex-shrink: 0;
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  #main-stage {
+    order: 2;
+    flex: 1;
+  }
+
+  #reminders-list {
+    max-width: none;
+  }
+
+  #day-selector {
+    justify-content: flex-start;
+  }
+
+  .stat-flank {
+    display: none;
+  }
+
+  #stats-row-desktop {
+    display: block;
+  }
 }

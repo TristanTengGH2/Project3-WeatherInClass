@@ -104,6 +104,8 @@ export function buildRecommendationState(day, prefs) {
     outfitImage: OUTFITS[category][outfitIndex],
     icon: day.icon,
     apparentTempF: day.apparentTempF,
+    uvIndexMax: day.uvIndexMax,
+    windSpeedMph: day.windSpeedMph,
     reminders,
   };
 }

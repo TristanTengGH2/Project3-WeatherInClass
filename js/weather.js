@@ -55,15 +55,16 @@ export function getDeviceLocation() {
 
 /**
  * Fetch a 7-day forecast (today + 6 days) for a location.
- * Returns an array of 7 entries: { date, apparentTempF, uvIndexMax, precipProbMax, weatherCode }
+ * Returns an array of 7 entries:
+ * { date, apparentTempF, uvIndexMax, precipProbMax, weatherCode, windSpeedMph }
  */
 export async function fetchForecast(lat, lon) {
   let response;
   try {
     const url =
       `${FORECAST_URL}?latitude=${lat}&longitude=${lon}` +
-      `&daily=apparent_temperature_max,uv_index_max,precipitation_probability_max,weathercode` +
-      `&temperature_unit=fahrenheit&timezone=auto&forecast_days=7`;
+      `&daily=apparent_temperature_max,uv_index_max,precipitation_probability_max,weathercode,windspeed_10m_max` +
+      `&temperature_unit=fahrenheit&windspeed_unit=mph&timezone=auto&forecast_days=7`;
     response = await fetch(url);
   } catch {
     throw new WeatherServiceError("Network error while fetching the forecast");
@@ -85,15 +86,17 @@ export async function fetchForecast(lat, lon) {
     const uvIndexMax = d.uv_index_max[i];
     const precipProbMax = d.precipitation_probability_max[i];
     const weatherCode = d.weathercode[i];
+    const windSpeedMph = d.windspeed_10m_max[i];
     if (
       apparentTempF == null ||
       uvIndexMax == null ||
       precipProbMax == null ||
-      weatherCode == null
+      weatherCode == null ||
+      windSpeedMph == null
     ) {
       throw new WeatherServiceError("Forecast data incomplete");
     }
-    days.push({ date: d.time[i], apparentTempF, uvIndexMax, precipProbMax, weatherCode });
+    days.push({ date: d.time[i], apparentTempF, uvIndexMax, precipProbMax, weatherCode, windSpeedMph });
   }
   return days;
 }

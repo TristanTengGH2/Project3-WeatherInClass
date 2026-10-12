@@ -22,6 +22,9 @@ const weatherIconEl = document.getElementById("weather-icon");
 const characterSpriteEl = document.getElementById("character-sprite");
 const temperatureDisplay = document.getElementById("temperature-display");
 const recommendationTextEl = document.getElementById("recommendation-text");
+const statUvMobile = document.getElementById("stat-uv-mobile");
+const statWindMobile = document.getElementById("stat-wind-mobile");
+const statsRowDesktop = document.getElementById("stats-row-desktop");
 const remindersList = document.getElementById("reminders-list");
 const daySelector = document.getElementById("day-selector");
 const loadingOverlay = document.getElementById("loading-overlay");
@@ -137,6 +140,12 @@ function renderSelectedDay() {
 
   temperatureDisplay.textContent = formatTemp(state.apparentTempF);
   recommendationTextEl.textContent = state.recommendationText;
+
+  const uvText = `UV ${Math.round(state.uvIndexMax)}`;
+  const windText = `Wind ${Math.round(state.windSpeedMph)} mph`;
+  statUvMobile.textContent = uvText;
+  statWindMobile.textContent = windText;
+  statsRowDesktop.textContent = `${windText} · ${uvText}`;
 
   remindersList.innerHTML = "";
   state.reminders.forEach((r) => {

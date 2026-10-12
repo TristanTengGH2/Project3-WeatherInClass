@@ -33,16 +33,26 @@
       <p id="location-name"></p>
       <p id="current-forecast-label"></p>
 
-      <div id="character-stage">
-        <img id="weather-icon" alt="" />
-        <img id="character-sprite" alt="" />
+      <div id="layout-grid">
+        <div id="sidebar-panel">
+          <ul id="reminders-list" aria-label="Reminders"></ul>
+          <p id="stats-row-desktop" class="stats-row"></p>
+          <div id="day-selector" role="group" aria-label="Choose a forecast day"></div>
+        </div>
+
+        <div id="main-stage">
+          <div id="character-stage">
+            <span id="stat-uv-mobile" class="stat-flank"></span>
+            <div id="character-visual">
+              <img id="weather-icon" alt="" />
+              <img id="character-sprite" alt="" />
+            </div>
+            <span id="stat-wind-mobile" class="stat-flank"></span>
+          </div>
+          <p id="temperature-display"></p>
+          <p id="recommendation-text"></p>
+        </div>
       </div>
-      <p id="temperature-display"></p>
-      <p id="recommendation-text"></p>
-
-      <ul id="reminders-list" aria-label="Reminders"></ul>
-
-      <div id="day-selector" role="group" aria-label="Choose a forecast day"></div>
 
       <p id="data-source-credit">Data: Open-Meteo</p>
     </div>
