@@ -48,21 +48,21 @@ During implementation, follow the approved plan in working checkpoints and keep 
 
 ### Build
 
-- [ ] Create or source the assets listed in `spec.md`, starting early (runs in parallel with the tasks below)
-- [ ] Scaffold the static site (`index.html`, `styles.css`, JS modules) and deploy an empty/placeholder page to GitHub Pages, so the deploy pipeline is proven before any feature work
-- [ ] Build the Open-Meteo geocoding + forecast fetch (zip → lat/lon → 7-day forecast with `apparent_temperature`, UV index, PoP), with the loading overlay and service-error/retry states from `spec.md`
-- [ ] Build the recommendation-rule engine: temperature-band categories, reminder thresholds, sensitivity offset (incl. hydration toggle), unit conversion — testable against placeholder art before final assets exist
-- [ ] Build in-memory per-(location, date) state with independent random variation selection and reuse-on-reselect, per `spec.md`'s Content variation section
-- [ ] Build the main screen UI (character, weather icon, temperature, reminders, Mon–Sun forecast selector, zip box + location icon) wired to the recommendation state, using the approved screen drawings for layout
-- [ ] Build the Settings/Info tabbed screen (sensitivity slider, hydration-offset toggle, units toggle, Info tab content: creator, data source, recommendation methods, privacy, art credits) — include the hydration-sensitivity toggle flagged as a build-time addition not shown in the sketches
-- [ ] Add `localStorage` persistence for the saved location and Settings preferences
-- [ ] Implement the invalid-zip and location-permission-denied messaging from `spec.md`
-- [ ] Pass: accessibility baseline (no color-only signals, real text/ARIA, alt text, contrast, touch targets)
-- [ ] Pass: responsive layout (laptop side panel vs. phone stacked layout, one-handed phone reachability)
-- [ ] Swap in final AI-generated assets once ready, confirming consistent style across all 23
-- [ ] Test and fix each checkpoint against the specification before starting the next
-- [ ] Commit meaningful working checkpoints
-- [ ] Deploy to a public HTTPS URL (GitHub Pages)
+- [x] Create or source the assets listed in `spec.md`, starting early (runs in parallel with the tasks below)
+- [x] Scaffold the static site (`index.html`, `styles.css`, JS modules) and deploy an empty/placeholder page to GitHub Pages, so the deploy pipeline is proven before any feature work
+- [x] Build the Open-Meteo geocoding + forecast fetch (zip → lat/lon → 7-day forecast with `apparent_temperature`, UV index, PoP), with the loading overlay and service-error/retry states from `spec.md`
+- [x] Build the recommendation-rule engine: temperature-band categories, reminder thresholds, boundary adjustment (incl. hydration toggle), unit conversion — testable against placeholder art before final assets exist
+- [x] Build in-memory per-(location, date) state with independent random variation selection and reuse-on-reselect, per `spec.md`'s Content variation section
+- [x] Build the main screen UI (character, weather icon, temperature, written recommendation, reminders, Mon–Sun forecast selector, zip box + location icon) wired to the recommendation state, using the approved screen drawings for layout
+- [x] Build the Settings/Info tabbed screen (3-handle boundary slider, hydration-offset toggle, units toggle, Info tab content: creator, data source, recommendation methods, privacy, art credits)
+- [x] Add `localStorage` persistence for the saved location and Settings preferences
+- [x] Implement the invalid-zip and location-permission-denied messaging from `spec.md`
+- [ ] Pass: accessibility baseline (no color-only signals, real text/ARIA, alt text, contrast, touch targets) — not yet audited
+- [ ] Pass: responsive layout (laptop side panel vs. phone stacked layout, one-handed phone reachability) — not yet built; current layout is single-column for both
+- [x] Swap in final AI-generated assets once ready, confirming consistent style across all 23 (24, incl. fog — see `assets/README.txt`)
+- [x] Test and fix each checkpoint against the specification before starting the next
+- [x] Commit meaningful working checkpoints
+- [x] Deploy to a public HTTPS URL (GitHub Pages) — live at https://tristantenggh2.github.io/Project3-WeatherInClass/
 
 ### Verify and revise
 
