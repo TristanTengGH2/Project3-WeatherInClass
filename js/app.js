@@ -5,10 +5,10 @@ import {
   weatherCodeToIcon,
   LocationError,
   WeatherServiceError,
-} from "./weather.js";
-import { REMINDER_TEXTS, REMINDER_ICONS, DEFAULT_BOUNDARIES } from "./recommendation.js";
-import { getRecommendationState } from "./state.js";
-import { saveLocation, loadLocation, savePrefs, loadPrefs } from "./storage.js";
+} from "./weather.js?v=7cfa01b";
+import { REMINDER_TEXTS, REMINDER_ICONS, DEFAULT_BOUNDARIES } from "./recommendation.js?v=7cfa01b";
+import { getRecommendationState } from "./state.js?v=7cfa01b";
+import { saveLocation, loadLocation, savePrefs, loadPrefs } from "./storage.js?v=7cfa01b";
 
 const zipInput = document.getElementById("zip-input");
 const zipSubmitBtn = document.getElementById("zip-submit-btn");
