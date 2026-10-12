@@ -55,14 +55,15 @@ export function getDeviceLocation() {
 
 /**
  * Fetch a 7-day forecast (today + 6 days) for a location.
- * Returns an array of 7 entries:
- * { date, apparentTempF, actualHighF, actualLowF, uvIndexMax, precipProbMax, weatherCode, windSpeedMph }
+ * Returns an array of 7 entries. Today's entry also includes the current
+ * temperature and weather code; future entries remain forecast-only.
  */
 export async function fetchForecast(lat, lon) {
   let response;
   try {
     const url =
       `${FORECAST_URL}?latitude=${lat}&longitude=${lon}` +
+      `&current=temperature_2m,weather_code` +
       `&daily=apparent_temperature_max,temperature_2m_max,temperature_2m_min,uv_index_max,precipitation_probability_max,weathercode,windspeed_10m_max` +
       `&temperature_unit=fahrenheit&windspeed_unit=mph&timezone=auto&forecast_days=7`;
     response = await fetch(url);
@@ -76,7 +77,14 @@ export async function fetchForecast(lat, lon) {
 
   const data = await response.json();
   const d = data.daily;
-  if (!d || !d.time || d.time.length < 7) {
+  const current = data.current;
+  if (
+    !d ||
+    !d.time ||
+    d.time.length < 7 ||
+    current?.temperature_2m == null ||
+    current?.weather_code == null
+  ) {
     throw new WeatherServiceError("Forecast data incomplete");
   }
 
@@ -102,6 +110,8 @@ export async function fetchForecast(lat, lon) {
     }
     days.push({
       date: d.time[i],
+      currentTempF: i === 0 ? current.temperature_2m : null,
+      currentWeatherCode: i === 0 ? current.weather_code : null,
       apparentTempF,
       actualHighF,
       actualLowF,

@@ -57,6 +57,7 @@ During implementation, follow the approved plan in working checkpoints and keep 
 - [x] Build the Settings/Info tabbed screen (3-handle boundary slider, hydration-offset toggle, units toggle, Info tab content: creator, data source, recommendation methods, privacy, art credits)
 - [x] Add `localStorage` persistence for the saved location and Settings preferences
 - [x] Implement the invalid-zip and location-permission-denied messaging from `spec.md`
+- [x] Add Open-Meteo current temperature and current-condition icon to Today while retaining daily high/low and forecast-only future dates
 - [ ] Pass: accessibility baseline (no color-only signals, real text/ARIA, alt text, contrast, touch targets) — implementation/static audit complete; browser and screen-reader verification pending
 - [x] Pass: responsive layout (laptop side panel vs. phone stacked layout, one-handed phone reachability) — phone uses a stacked layout; laptop uses a side panel at ≥900px
 - [x] Swap in final AI-generated assets once ready, confirming consistent style across all 24 (see `assets/README.txt`)
@@ -108,6 +109,8 @@ Record material plan changes and why they were made.
 **2026-10-12 — Added actual high/low display and live preference recalculation.** Per Developer direction during browser review, the forecast display now uses Open-Meteo's actual daily maximum/minimum temperatures; the recommendation rules continue to use apparent temperature. Sensitivity and hydration-toggle changes now update the selected date immediately and cached dates when revisited, while preserving their random variation indices.
 
 **2026-10-12 — Added one Save changes action for Settings.** Per Developer direction, all Settings controls now edit a temporary draft for continuity. Saving applies/persists boundaries, hydration behavior, and units together and recalculates once; closing without saving discards the draft.
+
+**2026-10-12 — Added current conditions to Today.** A brief-compliance audit found that the working app used daily forecast data but did not request a current observation. Today now shows Open-Meteo's current temperature and uses its current weather code for the icon; high/low temperatures and daily feels-like-based guidance remain unchanged, and future dates remain forecast-only.
 
 ## Saving transcripts
 

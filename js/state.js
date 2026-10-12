@@ -1,4 +1,4 @@
-import { buildRecommendationState } from "./recommendation.js?v=7cfa01b";
+import { buildRecommendationState } from "./recommendation.js?v=current-conditions-1";
 
 // In-memory only (per spec.md's Content variation section): cleared on reload,
 // so the same date reuses its variation only within the current tab session.

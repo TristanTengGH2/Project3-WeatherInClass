@@ -29,7 +29,7 @@ Defines the need from `research.md`'s user stories:
 ## Screen designs
 
 - **Main screen** (phone + laptop): [`reference/IMG_3102.JPG`](reference/IMG_3102.JPG), refined in [`reference/IMG_3103.JPG`](reference/IMG_3103.JPG) and [`reference/IMG_3104.JPG`](reference/IMG_3104.JPG). Character centered with weather cloud/condition above it, temperature below; UV and wind speed flank the character; a Mon–Sun forecast-day selector; reminders list (e.g., "Dress for rain — jacket, umbrella") on laptop's side panel; a gear icon opens Settings/Info. Zip-code text box + location icon sits top-left on laptop, centered at top on phone (per `IMG_3104.JPG`).
-- **Settings/Info screen** (tabbed: Settings | Info): [`reference/IMG_3103.JPG`](reference/IMG_3103.JPG) and [`reference/IMG_3104.JPG`](reference/IMG_3104.JPG), bottom sketch. Settings tab holds a single slider from "cold" to "hot" with 3 discrete positions, plus a °F/°C toggle. Info tab (content not sketched, text-only) holds creator, weather-data source, recommendation methods/sources, privacy practices, and art credits per the brief. The hydration-sensitivity-offset toggle (decided after these sketches) also belongs on the Settings tab, not yet drawn.
+- **Settings/Info screen** (tabbed: Settings | Info): [`reference/IMG_3103.JPG`](reference/IMG_3103.JPG) and [`reference/IMG_3104.JPG`](reference/IMG_3104.JPG), bottom sketch. Settings tab holds a 3-handle temperature-boundary slider from 0–100°F, plus a °F/°C toggle. Info tab (content not sketched, text-only) holds creator, weather-data source, recommendation methods/sources, privacy practices, and art credits per the brief. The hydration-sensitivity-offset toggle (decided after these sketches) also belongs on the Settings tab, not yet drawn.
 
 ## Requirements
 
@@ -41,8 +41,8 @@ Translate every fixed brief requirement and the selected research-driven feature
    - *Check:* with a location set, its zip/name is visible on screen without opening any other screen; entering a malformed or non-US zip hides any visible recommendation and shows the red error text under the box; denying the browser's location permission prompt shows the inline message and moves focus to the zip box.
 2. **Date / current vs. forecast.** The Mon–Sun day-selector row lets the User pick today or any of the next 6 days. The selected day is visually highlighted (filled/bordered), and a text label elsewhere on the main screen reads "Today" when today is selected, or "Forecast for [Day]" otherwise — never color/highlight alone.
    - *Check:* selecting a non-today day changes the visible label to "Forecast for [Day]"; selecting today changes it back to "Today"; a screen-reader pass confirms the label (not just the highlight) is announced.
-3. **Temperatures and units.** The main screen shows the selected day's actual forecast high and low (`temperature_2m_max` and `temperature_2m_min`) with their unit (°F or °C, per the Settings toggle). These displayed actual temperatures are separate from the daily apparent-temperature maximum used internally for outfit and hydration rules.
-   - *Check:* every selected day shows both `High [value]°F` and `Low [value]°F`; toggling units converts both values and changes both unit letters to °C without changing the underlying recommendation state.
+3. **Current conditions, forecast temperatures, and units.** When Today is selected, the main screen shows `Now [value]°F` from Open-Meteo's current `temperature_2m` observation and uses the current `weather_code` for the weather icon. Every selected day, including Today, also shows its actual forecast high and low (`temperature_2m_max` and `temperature_2m_min`). Future days do not show a misleading "Now" value. All displayed temperatures use °F or °C per the Settings toggle. Current temperature and forecast high/low are separate from the daily apparent-temperature maximum used internally for outfit and hydration rules.
+   - *Check:* Today shows a current temperature, current-condition icon, forecast high, and forecast low; selecting a future day removes the current reading and uses that day's forecast icon while retaining forecast high/low; toggling units converts every displayed temperature without changing the underlying recommendation category.
 4. **Data source.** A small credit line (e.g., "Data: Open-Meteo") appears on the main screen, in addition to the full attribution on the Info tab.
    - *Check:* the credit text is visible on the main screen without navigating away.
 
@@ -64,7 +64,7 @@ Translate every fixed brief requirement and the selected research-driven feature
 
 ## Recommendation state and data flow
 
-**Inputs** (from Open-Meteo, for the selected location + date): daily apparent-temperature maximum (recommendation rules), actual temperature maximum and minimum (display), UV index, precipitation probability (PoP).
+**Inputs** (from Open-Meteo): current `temperature_2m` and `weather_code` for the Today display; for each selected date, daily apparent-temperature maximum (recommendation rules), actual temperature maximum and minimum (display), UV index, precipitation probability (PoP), daily weather code, and wind-speed maximum.
 
 **User preference inputs** (from Settings, device-stored): three user-set temperature boundaries (cold/cool, cool/mild, mild/warm), each adjustable 0–100°F via a 3-handle slider — defaults 35°F, 45°F, 60°F, matching the conventional bands from `research.md`; a toggle for whether the user's mild/warm boundary also shifts the hydration reminder threshold (default **off**); display unit (°F/°C, display-only).
 
@@ -76,7 +76,7 @@ Translate every fixed brief requirement and the selected research-driven feature
 - Sun protection reminder: active when UV index ≥3 (not temperature-based; boundaries never apply).
 - Hydration reminder: active when `apparent_temperature` ≥80°F, shifted by (`b3` − 60°F) only if the Settings toggle for it is on. Off by default, since heat risk is safety-driven rather than comfort-driven.
 
-**Shared state:** one recommendation-state object per (location, date) combination holds: the actual high/low display temperatures, apparent temperature used by the rules, outfit category, which reminders are active, and the randomly-chosen outfit/wording variation indices (see Content variation). The character art, weather icon, displayed temperatures, written recommendation text, and all active reminder text are all read from this single object — none are computed independently elsewhere.
+**Shared state:** one recommendation-state object per (location, date) combination holds: the actual high/low display temperatures, current temperature and current-condition icon when the date is Today, apparent temperature used by the rules, outfit category, which reminders are active, and the randomly-chosen outfit/wording variation indices (see Content variation). The character art, weather icon, displayed temperatures, written recommendation text, and all active reminder text are all read from this single object — none are computed independently elsewhere.
 
 ## Content variation
 
@@ -131,6 +131,8 @@ After implementation or testing, record requirement changes and the evidence tha
 **2026-10-12 — Enlarged laptop reminder presentation.** The Developer observed unused space in the desktop left panel and directed that reminder icons and text use more of it. Laptop reminder cards now use 40px icons and larger text/padding; the compact phone presentation is unchanged.
 
 **2026-10-12 — Added a readable cozy-game visual theme.** Per Developer direction, the interface now uses a moderate pixel-farm-inspired treatment without copying proprietary game assets: warm cream surfaces, earthy green/brown accents, chunky borders and shadows, and subtle grid texture. Fredoka is limited to key display text and actions, while Nunito is used for body and interface copy. Both open fonts are self-hosted so the privacy behavior remains unchanged.
+
+**2026-10-12 — Added current conditions to Today.** A compliance review against the Client brief found that the existing app fetched daily forecast data but no current observation. Per Developer approval, Today now includes Open-Meteo's current temperature and current-condition icon while retaining forecast high/low and daily apparent-temperature-based guidance. Future dates remain forecast-only.
 
 ## Approval
 

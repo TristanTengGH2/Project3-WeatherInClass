@@ -105,6 +105,7 @@ export function buildRecommendationState(day, prefs, variations = {}) {
 
   return {
     date: day.date,
+    currentTempF: day.currentTempF,
     category,
     categoryLabel: CATEGORY_LABELS[category],
     recommendationText: RECOMMENDATION_TEXTS[category],

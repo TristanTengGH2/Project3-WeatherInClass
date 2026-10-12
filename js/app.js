@@ -5,9 +5,9 @@ import {
   weatherCodeToIcon,
   LocationError,
   WeatherServiceError,
-} from "./weather.js?v=7cfa01b";
-import { REMINDER_TEXTS, REMINDER_ICONS, DEFAULT_BOUNDARIES } from "./recommendation.js?v=7cfa01b";
-import { getRecommendationState } from "./state.js?v=7cfa01b";
+} from "./weather.js?v=current-conditions-1";
+import { REMINDER_TEXTS, REMINDER_ICONS, DEFAULT_BOUNDARIES } from "./recommendation.js?v=current-conditions-1";
+import { getRecommendationState } from "./state.js?v=current-conditions-1";
 import { saveLocation, loadLocation, savePrefs, loadPrefs } from "./storage.js?v=7cfa01b";
 
 const zipInput = document.getElementById("zip-input");
@@ -23,6 +23,7 @@ const locationNameEl = document.getElementById("location-name");
 const currentForecastLabel = document.getElementById("current-forecast-label");
 const weatherIconEl = document.getElementById("weather-icon");
 const characterSpriteEl = document.getElementById("character-sprite");
+const currentTemperatureDisplay = document.getElementById("current-temperature-display");
 const temperatureDisplay = document.getElementById("temperature-display");
 const recommendationTextEl = document.getElementById("recommendation-text");
 const statUvMobile = document.getElementById("stat-uv-mobile");
@@ -150,12 +151,17 @@ function renderSelectedDay() {
   currentForecastLabel.textContent =
     selectedIndex === 0 ? "Today" : `Forecast for ${dayLabel(day.date, selectedIndex)}`;
 
+  const hasCurrentConditions = state.currentTempF != null;
   weatherIconEl.src = `assets/${state.icon}.png`;
-  weatherIconEl.alt = `Weather: ${state.icon.replaceAll("-", " ")}`;
+  weatherIconEl.alt = `${hasCurrentConditions ? "Current" : "Forecast"} weather: ${state.icon.replaceAll("-", " ")}`;
 
   characterSpriteEl.src = state.outfitImage;
   characterSpriteEl.alt = `Character wearing a ${state.categoryLabel.toLowerCase()}-weather outfit`;
 
+  currentTemperatureDisplay.hidden = !hasCurrentConditions;
+  currentTemperatureDisplay.textContent = hasCurrentConditions
+    ? `Now ${formatTemp(state.currentTempF)}`
+    : "";
   temperatureDisplay.textContent = `High ${formatTemp(state.actualHighF)} · Low ${formatTemp(state.actualLowF)}`;
   recommendationTextEl.textContent = state.recommendationText;
 
@@ -188,7 +194,10 @@ async function loadForecastFor(lat, lon, label, locationKey, persistAs) {
   hideError();
   try {
     const days = await fetchForecast(lat, lon);
-    currentDays = days.map((d) => ({ ...d, icon: weatherCodeToIcon(d.weatherCode) }));
+    currentDays = days.map((d) => ({
+      ...d,
+      icon: weatherCodeToIcon(d.currentWeatherCode ?? d.weatherCode),
+    }));
     currentLocationKey = locationKey;
     currentLocationLabel = label;
     selectedIndex = 0;
