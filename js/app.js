@@ -95,6 +95,8 @@ function clearZipError() {
 function showZipError() {
   zipError.hidden = false;
   zipInput.setAttribute("aria-invalid", "true");
+  forecastView.hidden = true;
+  placeholderStatus.hidden = true;
 }
 
 function clearLocationStatus() {
