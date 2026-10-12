@@ -128,6 +128,8 @@ After implementation or testing, record requirement changes and the evidence tha
 
 **2026-10-12 — Invalid zip codes clear the visible forecast.** Per Developer direction during deployed testing, submitting a malformed or unresolved US zip now hides any previously displayed recommendation rather than leaving stale weather visible behind the validation message.
 
+**2026-10-12 — Enlarged laptop reminder presentation.** The Developer observed unused space in the desktop left panel and directed that reminder icons and text use more of it. Laptop reminder cards now use 40px icons and larger text/padding; the compact phone presentation is unchanged.
+
 ## Approval
 
 The Developer reviews and explicitly approves this specification and its screen designs before planning begins.
