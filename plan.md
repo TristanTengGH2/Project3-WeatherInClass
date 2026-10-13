@@ -70,9 +70,9 @@ During implementation, follow the approved plan in working checkpoints and keep 
 ### Verify and revise
 
 - [ ] Check every specification requirement
-- [ ] Test multiple locations, current and forecast dates, recommendation categories, outfit and reminder variations, and failure states
-- [ ] Verify that eligible outfit and reminder variations are selected independently rather than as fixed pairs
-- [ ] Verify that returning to a previously selected date shows the same variations
+- [x] Test multiple locations, current and forecast dates, recommendation categories, outfit and reminder variations, and failure states
+- [x] Verify that eligible outfit and reminder variations are selected independently rather than as fixed pairs
+- [x] Verify that returning to a previously selected date shows the same variations
 - [ ] Test the deployed app, independently of the local version, on a real phone and a laptop, including both screens, accessibility, and one-handed controls
 - [x] Prepare the usability test below
 - [ ] Test with three peers and record each session — testing completed; individual session notes still need to be recorded
@@ -127,6 +127,8 @@ Record material plan changes and why they were made.
 **2026-10-12 — Optically balanced compact phone stats.** Real-phone review found that the wider wind badge appeared shifted right in the compact grid. The wind badge now receives a small compact-mode-only leftward adjustment; UV, taller-phone, and desktop positioning remain unchanged.
 
 **2026-10-12 — Made the main-screen data source actionable after peer testing.** The Developer reported that participants used the app successfully but found the weather-data source slightly difficult to locate. The selected improvement turns the existing "Data: Open-Meteo" credit into a direct, visibly underlined provider link while retaining the full Info-tab attribution. Individual session-level notes were not provided, so that documentation item remains open.
+
+**2026-10-12 — Closed final browser-audit layout and touch-target gaps.** The final deployed audit confirmed the weather, recommendation, Settings, error, responsive, and automated accessibility behavior, while finding that the overlapping range thumbs had only 22px visual/hit areas and a two-reminder forecast extended 57px past a 390×650 viewport. The range thumbs now retain compact visible circles inside 44px interactive areas, and short-phone decorative art/padding is reduced further. Local Chrome verification measured a 390×650 page with no horizontal or vertical overflow, controls ≥44px, and 44px-high range inputs. Manual screen-reader verification remains open.
 
 ## Saving transcripts
 

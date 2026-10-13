@@ -729,13 +729,12 @@ input {
 #boundary-slider input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
   pointer-events: auto;
-  width: 22px;
-  height: 22px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
-  border: 2px solid var(--cream-light);
-  box-shadow: 0 2px 0 var(--wood-dark);
+  border: 0;
   cursor: pointer;
-  margin-top: 11px;
+  margin-top: 0;
 }
 
 #boundary-slider input[type="range"]::-moz-range-track {
@@ -745,40 +744,35 @@ input {
 
 #boundary-slider input[type="range"]::-moz-range-thumb {
   pointer-events: auto;
-  width: 22px;
-  height: 22px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
-  border: 2px solid var(--cream-light);
-  box-shadow: 0 2px 0 var(--wood-dark);
+  border: 0;
   cursor: pointer;
 }
 
-/* Each handle sits at a slightly different height so two handles at the same
-   value never fully hide one another behind an identical-size circle. */
+/* The transparent part of each 44px thumb is its touch target; the radial
+   gradient keeps the visible handle compact. Handles sit at slightly different
+   heights so equal values remain distinguishable. */
 #boundary-1::-webkit-slider-thumb {
-  background: #3569a8;
-  margin-top: 5px;
+  background: radial-gradient(circle at 50% calc(50% - 6px), #3569a8 0 9px, var(--cream-light) 10px 11px, transparent 12px);
 }
 #boundary-1::-moz-range-thumb {
-  background: #3569a8;
-  transform: translateY(-6px);
+  background: radial-gradient(circle at 50% calc(50% - 6px), #3569a8 0 9px, var(--cream-light) 10px 11px, transparent 12px);
 }
 
 #boundary-2::-webkit-slider-thumb {
-  background: var(--leaf);
-  margin-top: 11px;
+  background: radial-gradient(circle, var(--leaf) 0 9px, var(--cream-light) 10px 11px, transparent 12px);
 }
 #boundary-2::-moz-range-thumb {
-  background: var(--leaf);
+  background: radial-gradient(circle, var(--leaf) 0 9px, var(--cream-light) 10px 11px, transparent 12px);
 }
 
 #boundary-3::-webkit-slider-thumb {
-  background: #b84b25;
-  margin-top: 17px;
+  background: radial-gradient(circle at 50% calc(50% + 6px), #b84b25 0 9px, var(--cream-light) 10px 11px, transparent 12px);
 }
 #boundary-3::-moz-range-thumb {
-  transform: translateY(6px);
-  background: #b84b25;
+  background: radial-gradient(circle at 50% calc(50% + 6px), #b84b25 0 9px, var(--cream-light) 10px 11px, transparent 12px);
 }
 
 #boundary-readout {
@@ -879,17 +873,17 @@ input:disabled {
    targets or changing the roomier layout on taller phones. */
 @media (max-width: 899px) and (max-height: 760px) {
   #location-bar {
-    padding: 8px 10px 10px;
+    padding: 4px 10px 6px;
   }
 
   #app {
-    min-height: calc(100vh - 68px);
-    padding: 10px 8px 16px;
+    min-height: calc(100vh - 60px);
+    padding: 6px 8px 8px;
   }
 
   #forecast-view {
     gap: 5px;
-    padding: 10px 8px 12px;
+    padding: 6px 8px;
   }
 
   #layout-grid {
@@ -906,16 +900,16 @@ input:disabled {
 
   #character-stage {
     grid-template-columns: 76px 1fr 76px;
-    min-height: 240px;
+    min-height: 200px;
   }
 
   #weather-icon {
-    width: 52px;
-    height: 52px;
+    width: 44px;
+    height: 44px;
   }
 
   #character-sprite {
-    max-height: min(205px, 29vh);
+    max-height: min(156px, 25vh);
   }
 
   .stat-flank {

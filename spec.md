@@ -144,6 +144,8 @@ After implementation or testing, record requirement changes and the evidence tha
 
 **2026-10-12 — Added compact mode for short phone viewports.** Real-phone review found that visible browser controls reduced the usable page height. Per Developer approval, phone viewports 760px tall or shorter now use tighter padding/gaps and modestly smaller character/weather art while preserving readable text, 44px-minimum controls, and the existing taller-phone and desktop layouts.
 
+**2026-10-12 — Refined compact height and slider touch areas after final audit.** Browser measurement found that a two-reminder forecast still extended 57px past a 390×650 viewport and that the three range thumbs exposed only 22px hit areas. Short-phone padding and decorative art were reduced until that tested view fit without horizontal or vertical overflow. Each slider thumb now uses a 44px transparent interactive area around its compact visible circle, preserving the staggered three-handle presentation and keyboard behavior.
+
 **2026-10-12 — Linked the main-screen data credit after usability testing.** Peer testing found the weather-data source slightly difficult to locate. Per Developer direction, the existing main-screen "Data: Open-Meteo" credit is now a visibly underlined link to the provider; the fuller Info-tab attribution remains available.
 
 ## Approval
