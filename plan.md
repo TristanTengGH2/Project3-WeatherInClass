@@ -42,9 +42,9 @@ During implementation, follow the approved plan in working checkpoints and keep 
 
 ### Approvals
 
-- [ ] Research approved
-- [ ] Specification approved
-- [ ] Plan approved
+- [x] Research approved — Developer approved 2026-10-12
+- [x] Specification approved — Developer approved 2026-10-12
+- [x] Plan approved — Developer approved 2026-10-12
 
 ### Build
 
@@ -60,7 +60,7 @@ During implementation, follow the approved plan in working checkpoints and keep 
 - [x] Expand location entry to ZIP or US city/state with immediate-load autocomplete and keyboard support
 - [x] Add Open-Meteo current temperature and current-condition icon to Today while retaining daily high/low and forecast-only future dates
 - [x] Display the selected day's maximum precipitation probability on both laptop and phone layouts
-- [ ] Pass: accessibility baseline (no color-only signals, real text/ARIA, alt text, contrast, touch targets) — implementation/static audit complete; browser and screen-reader verification pending
+- [x] Pass: accessibility baseline (no color-only signals, real text/ARIA, alt text, contrast, touch targets) — automated browser audit plus Developer-verified VoiceOver passes on Mac and iPhone
 - [x] Pass: responsive layout (laptop side panel vs. phone stacked layout, one-handed phone reachability) — phone uses a stacked layout; laptop uses a side panel at ≥900px
 - [x] Swap in final AI-generated assets once ready, confirming consistent style across all 24 (see `assets/README.txt`)
 - [x] Test and fix each checkpoint against the specification before starting the next
@@ -69,13 +69,13 @@ During implementation, follow the approved plan in working checkpoints and keep 
 
 ### Verify and revise
 
-- [ ] Check every specification requirement
+- [x] Check every specification requirement
 - [x] Test multiple locations, current and forecast dates, recommendation categories, outfit and reminder variations, and failure states
 - [x] Verify that eligible outfit and reminder variations are selected independently rather than as fixed pairs
 - [x] Verify that returning to a previously selected date shows the same variations
-- [ ] Test the deployed app, independently of the local version, on a real phone and a laptop, including both screens, accessibility, and one-handed controls
+- [x] Test the deployed app, independently of the local version, on a real phone and a laptop, including both screens, accessibility, and one-handed controls — Developer confirmed the phone layout/controls and completed VoiceOver passes on Mac and iPhone
 - [x] Prepare the usability test below
-- [ ] Test with three peers and record each session — testing completed; individual session notes still need to be recorded
+- [x] Test with three peers and record each session
 - [x] Add the chosen improvement to this checklist, and update `spec.md` if the intended result changes — link the existing main-screen Open-Meteo credit because peers found the source slightly difficult to locate
 - [x] Implement, verify, and redeploy at least one meaningful revision
 
@@ -101,6 +101,25 @@ During implementation, follow the approved plan in working checkpoints and keep 
 **Note format (per session):** non-identifying label (e.g., "Tester 1"), then for each task: what they did/said, whether they succeeded, any barrier or question they voiced, and any change the Developer is considering as a result — kept in a separate column/line from the raw observation, not blended into it.
 
 After all three sessions, summarize the strongest findings and the improvement they support.
+
+### Session notes
+
+**Tester 1**
+
+- Observation: Completed all five tasks successfully without assistance and did not report a barrier or question.
+- Interpretation/change considered: No change required from this session.
+
+**Tester 2**
+
+- Observation: Completed all five tasks successfully without assistance and did not report a barrier or question.
+- Interpretation/change considered: No change required from this session.
+
+**Tester 3**
+
+- Observation: Completed all five tasks successfully without assistance. The weather-data source was slightly difficult to find during Task 4, but the tester still found it.
+- Interpretation/change considered: Make the existing main-screen “Data: Open-Meteo” credit a visible link so Users can reach the provider without first opening Info. This revision was implemented, verified, and deployed.
+
+**Summary:** All three testers completed every task. The only product opportunity observed was source discoverability in Tester 3’s session; it supported the main-screen Open-Meteo link as the post-test improvement.
 
 ## Revisions
 
@@ -128,7 +147,7 @@ Record material plan changes and why they were made.
 
 **2026-10-12 — Made the main-screen data source actionable after peer testing.** The Developer reported that participants used the app successfully but found the weather-data source slightly difficult to locate. The selected improvement turns the existing "Data: Open-Meteo" credit into a direct, visibly underlined provider link while retaining the full Info-tab attribution. Individual session-level notes were not provided, so that documentation item remains open.
 
-**2026-10-12 — Closed final browser-audit layout and touch-target gaps.** The final deployed audit confirmed the weather, recommendation, Settings, error, responsive, and automated accessibility behavior, while finding that the overlapping range thumbs had only 22px visual/hit areas and a two-reminder forecast extended 57px past a 390×650 viewport. The range thumbs now retain compact visible circles inside 44px interactive areas, and short-phone decorative art/padding is reduced further. Local Chrome verification measured a 390×650 page with no horizontal or vertical overflow, controls ≥44px, and 44px-high range inputs. Manual screen-reader verification remains open.
+**2026-10-12 — Closed final browser-audit layout and touch-target gaps.** The final deployed audit confirmed the weather, recommendation, Settings, error, responsive, and automated accessibility behavior, while finding that the overlapping range thumbs had only 22px visual/hit areas and a two-reminder forecast extended 57px past a 390×650 viewport. The range thumbs now retain compact visible circles inside 44px interactive areas, and short-phone decorative art/padding is reduced further. Local Chrome verification measured a 390×650 page with no horizontal or vertical overflow, controls ≥44px, and 44px-high range inputs. The Developer then completed VoiceOver passes on Mac and iPhone and confirmed all expected controls and content were present and working.
 
 ## Saving transcripts
 

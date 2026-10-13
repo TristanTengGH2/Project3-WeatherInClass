@@ -154,6 +154,8 @@ Record new evidence or changed decisions and explain why they changed.
 
 The Developer reviews the sources and decisions, corrects this file, and explicitly approves it before specification begins.
 
+**Approved by the Developer on 2026-10-12.**
+
 ## Saving the transcript
 
 After the Developer approves the research, ask them to enter `save transcript`. When directed, save the complete conversation as `transcripts/research-YYYY-MM-DD_HHMMSS.md`, label chat messages `Developer` and `Agent`, and confirm the saved path.
