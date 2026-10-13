@@ -916,6 +916,10 @@ input:disabled {
     font-size: 12px;
   }
 
+  #stat-wind-mobile {
+    transform: translateX(-6px);
+  }
+
   #stat-rain-mobile {
     margin: 2px 0 0;
   }

@@ -124,6 +124,8 @@ Record material plan changes and why they were made.
 
 **2026-10-12 — Added a short-viewport phone layout.** The Developer's real-phone check found that visible browser controls left too little vertical room. At phone widths with 760px or less of usable height, the layout now reduces nonessential padding/gaps and character/weather-art size while retaining readable text and 44px-minimum controls. Taller phones and laptop layout remain unchanged.
 
+**2026-10-12 — Optically balanced compact phone stats.** Real-phone review found that the wider wind badge appeared shifted right in the compact grid. The wind badge now receives a small compact-mode-only leftward adjustment; UV, taller-phone, and desktop positioning remain unchanged.
+
 ## Saving transcripts
 
 At the end of planning, ask the Developer to enter `save transcript`. When directed, save the complete conversation as `transcripts/plan-YYYY-MM-DD_HHMMSS.md`, label chat messages `Developer` and `Agent`, and confirm the saved path.
