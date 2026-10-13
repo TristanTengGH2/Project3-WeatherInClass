@@ -74,10 +74,10 @@ During implementation, follow the approved plan in working checkpoints and keep 
 - [ ] Verify that eligible outfit and reminder variations are selected independently rather than as fixed pairs
 - [ ] Verify that returning to a previously selected date shows the same variations
 - [ ] Test the deployed app, independently of the local version, on a real phone and a laptop, including both screens, accessibility, and one-handed controls
-- [ ] Prepare the usability test below
-- [ ] Test with three peers and record each session
-- [ ] Add the chosen improvement to this checklist, and update `spec.md` if the intended result changes
-- [ ] Implement, verify, and redeploy at least one meaningful revision
+- [x] Prepare the usability test below
+- [ ] Test with three peers and record each session — testing completed; individual session notes still need to be recorded
+- [x] Add the chosen improvement to this checklist, and update `spec.md` if the intended result changes — link the existing main-screen Open-Meteo credit because peers found the source slightly difficult to locate
+- [x] Implement, verify, and redeploy at least one meaningful revision
 
 ### Deliver
 
@@ -125,6 +125,8 @@ Record material plan changes and why they were made.
 **2026-10-12 — Added a short-viewport phone layout.** The Developer's real-phone check found that visible browser controls left too little vertical room. At phone widths with 760px or less of usable height, the layout now reduces nonessential padding/gaps and character/weather-art size while retaining readable text and 44px-minimum controls. Taller phones and laptop layout remain unchanged.
 
 **2026-10-12 — Optically balanced compact phone stats.** Real-phone review found that the wider wind badge appeared shifted right in the compact grid. The wind badge now receives a small compact-mode-only leftward adjustment; UV, taller-phone, and desktop positioning remain unchanged.
+
+**2026-10-12 — Made the main-screen data source actionable after peer testing.** The Developer reported that participants used the app successfully but found the weather-data source slightly difficult to locate. The selected improvement turns the existing "Data: Open-Meteo" credit into a direct, visibly underlined provider link while retaining the full Info-tab attribution. Individual session-level notes were not provided, so that documentation item remains open.
 
 ## Saving transcripts
 

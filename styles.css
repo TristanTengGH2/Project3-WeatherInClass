@@ -464,6 +464,13 @@ input {
   margin-top: 8px;
 }
 
+#data-source-credit a {
+  color: inherit;
+  font-weight: 850;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 2px;
+}
+
 #loading-overlay {
   position: fixed;
   inset: 0;

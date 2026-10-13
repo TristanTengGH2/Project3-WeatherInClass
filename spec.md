@@ -43,8 +43,8 @@ Translate every fixed brief requirement and the selected research-driven feature
    - *Check:* every selector button shows the correct day number from its forecast date; selecting a non-today day changes the visible label to "Forecast for [Day]"; selecting today changes it back to "Today"; a screen-reader pass confirms each button's full date and selected state are announced.
 3. **Current conditions, forecast temperatures, precipitation, and units.** When Today is selected, the main screen shows `Now [value]°F` from Open-Meteo's current `temperature_2m` observation and uses the current `weather_code` for the weather icon. Every selected day, including Today, also shows its actual forecast high and low (`temperature_2m_max` and `temperature_2m_min`) and maximum precipitation probability as `Rain [value]%`. On laptop, wind, UV, and rain appear together directly above the day selector; on phone, rain appears in a compact badge below the character. Future days do not show a misleading "Now" value. All displayed temperatures use °F or °C per the Settings toggle. Current temperature and forecast high/low are separate from the daily apparent-temperature maximum used internally for outfit and hydration rules.
    - *Check:* Today shows a current temperature, current-condition icon, forecast high, forecast low, and rain percentage; selecting a future day removes the current reading, uses that day's forecast icon, and updates high/low and rain percentage; toggling units converts every displayed temperature without changing the underlying recommendation category.
-4. **Data source.** A small credit line (e.g., "Data: Open-Meteo") appears on the main screen, in addition to the full attribution on the Info tab.
-   - *Check:* the credit text is visible on the main screen without navigating away.
+4. **Data source.** A small linked credit line reading "Data: Open-Meteo" appears on the main screen and opens the provider's website, in addition to the full attribution on the Info tab.
+   - *Check:* the linked credit is visible on the main screen without navigating away; activating "Open-Meteo" opens `https://open-meteo.com/` in a new tab.
 
 ### Loading, missing data, and errors
 
@@ -143,6 +143,8 @@ After implementation or testing, record requirement changes and the evidence tha
 **2026-10-12 — Expanded location entry to ZIP or city/state with autocomplete.** Per Developer approval, the single field now accepts US ZIP codes or city/state text. Debounced, keyboard-accessible suggestions load immediately when chosen; the arrow remains available for manual submission. Invalid input now uses the larger message "Oops! Try a ZIP or City, State." with a short reduced-motion-aware shake.
 
 **2026-10-12 — Added compact mode for short phone viewports.** Real-phone review found that visible browser controls reduced the usable page height. Per Developer approval, phone viewports 760px tall or shorter now use tighter padding/gaps and modestly smaller character/weather art while preserving readable text, 44px-minimum controls, and the existing taller-phone and desktop layouts.
+
+**2026-10-12 — Linked the main-screen data credit after usability testing.** Peer testing found the weather-data source slightly difficult to locate. Per Developer direction, the existing main-screen "Data: Open-Meteo" credit is now a visibly underlined link to the provider; the fuller Info-tab attribution remains available.
 
 ## Approval
 
